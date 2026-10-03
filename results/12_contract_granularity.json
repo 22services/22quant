@@ -1,0 +1,103 @@
+{
+  "table": [
+    {
+      "venue_contract": "continuous (perp DEX, ~$10 min)",
+      "equity_usd": NaN,
+      "sharpe": 0.8087664641569766,
+      "cagr": 0.1784954660619258,
+      "mdd": -0.26911670880894123,
+      "tracking_error_ann": 0.0,
+      "share_days_flat_by_rounding": 0.0
+    },
+    {
+      "venue_contract": "CME Micro BTC (0.1 BTC)",
+      "equity_usd": 5000,
+      "sharpe": 0.7659236468856602,
+      "cagr": 0.15875626160872125,
+      "mdd": -0.3279233726618789,
+      "tracking_error_ann": 0.15264877074037922,
+      "share_days_flat_by_rounding": 0.45059412132582866
+    },
+    {
+      "venue_contract": "CME Micro BTC (0.1 BTC)",
+      "equity_usd": 10000,
+      "sharpe": 0.7465398790175252,
+      "cagr": 0.1769762643671995,
+      "mdd": -0.279455116734476,
+      "tracking_error_ann": 0.09053151267107093,
+      "share_days_flat_by_rounding": 0.16791744840525327
+    },
+    {
+      "venue_contract": "CME Micro BTC (0.1 BTC)",
+      "equity_usd": 25000,
+      "sharpe": 0.8181067358659102,
+      "cagr": 0.1829150456756896,
+      "mdd": -0.2604490568621697,
+      "tracking_error_ann": 0.029372415434057334,
+      "share_days_flat_by_rounding": 0.021575984990619138
+    },
+    {
+      "venue_contract": "CME Micro BTC (0.1 BTC)",
+      "equity_usd": 50000,
+      "sharpe": 0.8331157060025484,
+      "cagr": 0.18556882732037216,
+      "mdd": -0.2685137412022959,
+      "tracking_error_ann": 0.01449919750045082,
+      "share_days_flat_by_rounding": 0.00375234521575985
+    },
+    {
+      "venue_contract": "CME Micro BTC (0.1 BTC)",
+      "equity_usd": 100000,
+      "sharpe": 0.8245363589159288,
+      "cagr": 0.18331024891852832,
+      "mdd": -0.2672048299991474,
+      "tracking_error_ann": 0.007552796881337549,
+      "share_days_flat_by_rounding": 0.0
+    },
+    {
+      "venue_contract": "CME Bitcoin Friday (0.02 BTC, weekly expiry)",
+      "equity_usd": 5000,
+      "sharpe": 0.8181067358659102,
+      "cagr": 0.18291504567568984,
+      "mdd": -0.2604490568621697,
+      "tracking_error_ann": 0.029372415434057327,
+      "share_days_flat_by_rounding": 0.021575984990619138
+    },
+    {
+      "venue_contract": "CME Bitcoin Friday (0.02 BTC, weekly expiry)",
+      "equity_usd": 10000,
+      "sharpe": 0.8331157060025483,
+      "cagr": 0.18556882732037216,
+      "mdd": -0.2685137412022959,
+      "tracking_error_ann": 0.01449919750045082,
+      "share_days_flat_by_rounding": 0.00375234521575985
+    },
+    {
+      "venue_contract": "CME Bitcoin Friday (0.02 BTC, weekly expiry)",
+      "equity_usd": 25000,
+      "sharpe": 0.8417733868001915,
+      "cagr": 0.1877380051096189,
+      "mdd": -0.2673393463647932,
+      "tracking_error_ann": 0.005805969255386946,
+      "share_days_flat_by_rounding": 0.0
+    },
+    {
+      "venue_contract": "CME Bitcoin Friday (0.02 BTC, weekly expiry)",
+      "equity_usd": 50000,
+      "sharpe": 0.8307223712636741,
+      "cagr": 0.18469198033026335,
+      "mdd": -0.2660629978600808,
+      "tracking_error_ann": 0.0030299465574937434,
+      "share_days_flat_by_rounding": 0.0
+    },
+    {
+      "venue_contract": "CME Bitcoin Friday (0.02 BTC, weekly expiry)",
+      "equity_usd": 100000,
+      "sharpe": 0.8307419821739427,
+      "cagr": 0.1846716842986884,
+      "mdd": -0.2663384880643961,
+      "tracking_error_ann": 0.001566946212964372,
+      "share_days_flat_by_rounding": 0.0
+    }
+  ]
+}

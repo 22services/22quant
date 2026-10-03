@@ -1,0 +1,78 @@
+{
+  "synthetic": {
+    "A: 85% WR, +0.3R/-2.5R": {
+      "expectancy_R": -0.12000000000000005,
+      "p_positive_after_50": 0.2172,
+      "p_positive_after_500": 0.0024,
+      "median_R_after_500": -60.00000000000044,
+      "p_ever_below_-20R": 0.9838
+    },
+    "B: 38% WR, +2.5R/-1R": {
+      "expectancy_R": 0.32999999999999996,
+      "p_positive_after_50": 0.913,
+      "p_positive_after_500": 1.0,
+      "median_R_after_500": 165.0,
+      "p_ever_below_-20R": 0.0048
+    }
+  },
+  "tp_table": [
+    {
+      "tp_frac_of_median_MFE": 0.25,
+      "win_rate": 0.5652173913043478,
+      "expectancy_pct": 0.25622841522386286,
+      "total_pct_sum": 29.46626775074423,
+      "profit_factor": 1.735727519488271,
+      "n": 115
+    },
+    {
+      "tp_frac_of_median_MFE": 0.5,
+      "win_rate": 0.4956521739130435,
+      "expectancy_pct": 0.599272145298222,
+      "total_pct_sum": 68.91629670929554,
+      "profit_factor": 2.2629777579546686,
+      "n": 115
+    },
+    {
+      "tp_frac_of_median_MFE": 0.75,
+      "win_rate": 0.4434782608695652,
+      "expectancy_pct": 0.59975401840771,
+      "total_pct_sum": 68.97171211688665,
+      "profit_factor": 1.9542859162548762,
+      "n": 115
+    },
+    {
+      "tp_frac_of_median_MFE": 1.0,
+      "win_rate": 0.43478260869565216,
+      "expectancy_pct": 0.8696680739915018,
+      "total_pct_sum": 100.0118285090227,
+      "profit_factor": 2.3640355433171636,
+      "n": 115
+    },
+    {
+      "tp_frac_of_median_MFE": 1.5,
+      "win_rate": 0.4260869565217391,
+      "expectancy_pct": 1.1300708817953478,
+      "total_pct_sum": 129.958151406465,
+      "profit_factor": 2.6544630208302045,
+      "n": 115
+    },
+    {
+      "tp_frac_of_median_MFE": 2.0,
+      "win_rate": 0.391304347826087,
+      "expectancy_pct": 1.1972922914207362,
+      "total_pct_sum": 137.6886135133847,
+      "profit_factor": 2.6795402283044556,
+      "n": 115
+    },
+    {
+      "tp_frac_of_median_MFE": "none (signal exit)",
+      "win_rate": 0.3826086956521739,
+      "expectancy_pct": 3.4185945998709695,
+      "total_pct_sum": 393.1383789851615,
+      "profit_factor": 5.747260753369842,
+      "n": 115
+    }
+  ],
+  "n_trades": 115,
+  "median_mfe_winners": 0.260487988786005
+}

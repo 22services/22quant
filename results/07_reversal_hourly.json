@@ -1,0 +1,267 @@
+{
+  "autocorr": {
+    "1": -0.02348976258251088,
+    "2": -0.026331162600109346,
+    "4": -0.000940909355612797,
+    "8": -0.000873543745633069,
+    "24": -0.02892887693941623
+  },
+  "grid": [
+    {
+      "move_window": 1,
+      "z_entry": 2.0,
+      "hold_bars": 3,
+      "n_trades": 3409,
+      "sharpe_gross": -0.00996681415129996,
+      "sharpe_maker": -0.408283882322684,
+      "sharpe_taker": -1.501047832112326,
+      "cagr_gross": -0.06573302363257627,
+      "cagr_taker": -0.453808895799824,
+      "avg_gross_bp_per_trade": -0.1023842280060345
+    },
+    {
+      "move_window": 1,
+      "z_entry": 2.0,
+      "hold_bars": 6,
+      "n_trades": 2874,
+      "sharpe_gross": 0.21011288510694223,
+      "sharpe_maker": -0.07198039704395483,
+      "sharpe_taker": -0.8468084388634922,
+      "cagr_gross": -0.0016100517834933825,
+      "cagr_taker": -0.3651466546192025,
+      "avg_gross_bp_per_trade": 3.0497333490459444
+    },
+    {
+      "move_window": 1,
+      "z_entry": 2.0,
+      "hold_bars": 12,
+      "n_trades": 2299,
+      "sharpe_gross": -0.33480379711762326,
+      "sharpe_maker": -0.5285707429662734,
+      "sharpe_taker": -1.0608734043522368,
+      "cagr_gross": -0.24955948916166903,
+      "cagr_taker": -0.4758473985765972,
+      "avg_gross_bp_per_trade": -7.009354910180988
+    },
+    {
+      "move_window": 1,
+      "z_entry": 2.5,
+      "hold_bars": 3,
+      "n_trades": 2137,
+      "sharpe_gross": -0.12392939918507435,
+      "sharpe_maker": -0.4191424436147315,
+      "sharpe_taker": -1.2294027400966685,
+      "cagr_gross": -0.07921201307235315,
+      "cagr_taker": -0.34031601082457974,
+      "avg_gross_bp_per_trade": -1.702470675001593
+    },
+    {
+      "move_window": 1,
+      "z_entry": 2.5,
+      "hold_bars": 6,
+      "n_trades": 1902,
+      "sharpe_gross": -0.2437138264241841,
+      "sharpe_maker": -0.4572729162930746,
+      "sharpe_taker": -1.0437539539244156,
+      "cagr_gross": -0.14683320211365913,
+      "cagr_taker": -0.36586975768149743,
+      "avg_gross_bp_per_trade": -4.626314375545563
+    },
+    {
+      "move_window": 1,
+      "z_entry": 2.5,
+      "hold_bars": 12,
+      "n_trades": 1614,
+      "sharpe_gross": -0.5851377372389531,
+      "sharpe_maker": -0.740553975438835,
+      "sharpe_taker": -1.1674077671529168,
+      "cagr_gross": -0.2904645959273001,
+      "cagr_taker": -0.4476732724012439,
+      "avg_gross_bp_per_trade": -15.180676731784873
+    },
+    {
+      "move_window": 1,
+      "z_entry": 3.0,
+      "hold_bars": 3,
+      "n_trades": 1381,
+      "sharpe_gross": -0.1915065912887893,
+      "sharpe_maker": -0.41088533445937564,
+      "sharpe_taker": -1.0128334597253037,
+      "cagr_gross": -0.08043924561800342,
+      "cagr_taker": -0.25822788449697687,
+      "avg_gross_bp_per_trade": -3.5283302820303066
+    },
+    {
+      "move_window": 1,
+      "z_entry": 3.0,
+      "hold_bars": 6,
+      "n_trades": 1267,
+      "sharpe_gross": -0.06187572115068697,
+      "sharpe_maker": -0.22779722954674259,
+      "sharpe_taker": -0.683539778780986,
+      "cagr_gross": -0.06691801863672642,
+      "cagr_taker": -0.23351716686040747,
+      "avg_gross_bp_per_trade": -1.504423916856751
+    },
+    {
+      "move_window": 1,
+      "z_entry": 3.0,
+      "hold_bars": 12,
+      "n_trades": 1136,
+      "sharpe_gross": -0.6381753727879296,
+      "sharpe_maker": -0.7628915101197388,
+      "sharpe_taker": -1.105368440774862,
+      "cagr_gross": -0.26678869177198183,
+      "cagr_taker": -0.3850682199854989,
+      "avg_gross_bp_per_trade": -20.58249745300335
+    },
+    {
+      "move_window": 4,
+      "z_entry": 2.0,
+      "hold_bars": 3,
+      "n_trades": 2055,
+      "sharpe_gross": -0.0439839002379438,
+      "sharpe_maker": -0.30270402201830066,
+      "sharpe_taker": -1.013050105580843,
+      "cagr_gross": -0.0660762690292166,
+      "cagr_taker": -0.32095378825116905,
+      "avg_gross_bp_per_trade": -0.6852153970626189
+    },
+    {
+      "move_window": 4,
+      "z_entry": 2.0,
+      "hold_bars": 6,
+      "n_trades": 1854,
+      "sharpe_gross": -0.7158729847002152,
+      "sharpe_maker": -0.922083533170624,
+      "sharpe_taker": -1.4881458117972661,
+      "cagr_gross": -0.2874309689941882,
+      "cagr_taker": -0.4669401427591414,
+      "avg_gross_bp_per_trade": -14.120527257790679
+    },
+    {
+      "move_window": 4,
+      "z_entry": 2.0,
+      "hold_bars": 12,
+      "n_trades": 1581,
+      "sharpe_gross": -0.8942664331718858,
+      "sharpe_maker": -1.044811275979121,
+      "sharpe_taker": -1.4582489030100958,
+      "cagr_gross": -0.38449931665445236,
+      "cagr_taker": -0.5189397978170958,
+      "avg_gross_bp_per_trade": -24.0637308952543
+    },
+    {
+      "move_window": 4,
+      "z_entry": 2.5,
+      "hold_bars": 3,
+      "n_trades": 1210,
+      "sharpe_gross": 0.3261642710484345,
+      "sharpe_maker": 0.13759888249621083,
+      "sharpe_taker": -0.38053502170891546,
+      "cagr_gross": 0.05268088556729711,
+      "cagr_taker": -0.1269667877867634,
+      "avg_gross_bp_per_trade": 6.953548787341494
+    },
+    {
+      "move_window": 4,
+      "z_entry": 2.5,
+      "hold_bars": 6,
+      "n_trades": 1130,
+      "sharpe_gross": -0.19556455578535167,
+      "sharpe_maker": -0.3466671567315651,
+      "sharpe_taker": -0.761832321710821,
+      "cagr_gross": -0.1033586494913673,
+      "cagr_taker": -0.24819435446053495,
+      "avg_gross_bp_per_trade": -5.245834859681304
+    },
+    {
+      "move_window": 4,
+      "z_entry": 2.5,
+      "hold_bars": 12,
+      "n_trades": 1011,
+      "sharpe_gross": -0.7667853775638224,
+      "sharpe_maker": -0.8803203138098776,
+      "sharpe_taker": -1.1921583193697658,
+      "cagr_gross": -0.2954515048605393,
+      "cagr_taker": -0.39774271063964384,
+      "avg_gross_bp_per_trade": -27.24085175099363
+    },
+    {
+      "move_window": 4,
+      "z_entry": 3.0,
+      "hold_bars": 3,
+      "n_trades": 735,
+      "sharpe_gross": 0.3742479900655428,
+      "sharpe_maker": 0.23541442667508478,
+      "sharpe_taker": -0.14635654056988553,
+      "cagr_gross": 0.059779123304990245,
+      "cagr_taker": -0.05397424184742772,
+      "avg_gross_bp_per_trade": 10.825702177584658
+    },
+    {
+      "move_window": 4,
+      "z_entry": 3.0,
+      "hold_bars": 6,
+      "n_trades": 691,
+      "sharpe_gross": 0.0008884209236958723,
+      "sharpe_maker": -0.11007050917246013,
+      "sharpe_taker": -0.415143683409515,
+      "cagr_gross": -0.032340372040524756,
+      "cagr_taker": -0.13085920185733513,
+      "avg_gross_bp_per_trade": 0.03235484403435808
+    },
+    {
+      "move_window": 4,
+      "z_entry": 3.0,
+      "hold_bars": 12,
+      "n_trades": 642,
+      "sharpe_gross": -0.14261481413818647,
+      "sharpe_maker": -0.22713906975896395,
+      "sharpe_taker": -0.45946050675536865,
+      "cagr_gross": -0.08914601389644661,
+      "cagr_taker": -0.17520011351072573,
+      "avg_gross_bp_per_trade": -6.780738322859839
+    }
+  ],
+  "dsr_best_gross": 0.16222410619412886,
+  "pbo_gross": 0.1984126984126984,
+  "share_positive_after_taker": 0.0,
+  "best_gross_periods": [
+    {
+      "period": "2017-2018",
+      "bars": 17544,
+      "gross_sharpe": 1.4186504365031543,
+      "gross_cagr": 0.47509126280428204,
+      "gross_mdd": -0.2576236899788309
+    },
+    {
+      "period": "2019-2020",
+      "bars": 17568,
+      "gross_sharpe": -0.3922684462222185,
+      "gross_cagr": -0.12327706528171045,
+      "gross_mdd": -0.3282802128320377
+    },
+    {
+      "period": "2021-2022",
+      "bars": 17544,
+      "gross_sharpe": 0.3056717218431641,
+      "gross_cagr": 0.04164831881036224,
+      "gross_mdd": -0.3449523291695199
+    },
+    {
+      "period": "2023-2024",
+      "bars": 17568,
+      "gross_sharpe": -0.005987688715387454,
+      "gross_cagr": -0.012309855569625383,
+      "gross_mdd": -0.2144316382585889
+    },
+    {
+      "period": "2025-2026",
+      "bars": 15361,
+      "gross_sharpe": 0.030122926247366923,
+      "gross_cagr": -0.002802887586912939,
+      "gross_mdd": -0.09133368593381352
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quant22"
+version = "0.1.0"
+description = "Evidence-first quantitative trading research & execution toolkit (crypto perps)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+  "numpy>=1.26",
+  "pandas>=2.1",
+  "scipy>=1.11",
+  "pyarrow>=14",
+]
+
+[project.optional-dependencies]
+live = ["hyperliquid-python-sdk>=0.10", "eth-account>=0.10"]
+dev = ["pytest>=7", "matplotlib>=3.8", "statsmodels>=0.14"]
+
+[tool.setuptools.packages.find]
+include = ["quant22*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

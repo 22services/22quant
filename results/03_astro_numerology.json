@@ -1,0 +1,280 @@
+{
+  "lunar": [
+    {
+      "asset": "BTC 2011-2026",
+      "effect_ann": 0.510852488620925,
+      "placebo_lo": -0.4856469997304736,
+      "placebo_hi": 0.4971758298834975,
+      "p": 0.021956087824351298,
+      "verdict": "NOT PROVEN (fails multiple-testing correction)",
+      "p_bonferroni": 0.17564870259481039,
+      "survives_multiple_testing": false
+    },
+    {
+      "asset": "ETH 2016-2026",
+      "effect_ann": 0.09584763435828969,
+      "placebo_lo": -0.9874252657711282,
+      "placebo_hi": 1.0139564775571661,
+      "p": 0.4590818363273453,
+      "verdict": "NOT PROVEN (fails multiple-testing correction)",
+      "p_bonferroni": 1.0,
+      "survives_multiple_testing": false
+    }
+  ],
+  "mercury": [
+    {
+      "asset": "BTC 2011-2026",
+      "effect_ann": 0.28513190290814105,
+      "retro_share": 0.1903023983315954,
+      "placebo_lo": -1.0620647948776782,
+      "placebo_hi": 1.536861903679504,
+      "p": 0.30934532733633185,
+      "verdict": "NOT PROVEN (fails multiple-testing correction)",
+      "p_bonferroni": 1.0,
+      "survives_multiple_testing": false
+    },
+    {
+      "asset": "ETH 2016-2026",
+      "effect_ann": 0.028230115857150302,
+      "retro_share": 0.19336143308746048,
+      "placebo_lo": -1.5682175154660405,
+      "placebo_hi": 1.148629029258901,
+      "p": 0.5312343828085957,
+      "verdict": "NOT PROVEN (fails multiple-testing correction)",
+      "p_bonferroni": 1.0,
+      "survives_multiple_testing": false
+    }
+  ],
+  "numerology": [
+    {
+      "asset": "BTC 2011-2026",
+      "rule": "master-number dates (digit sum 11/22/33)",
+      "effect_ann": -0.24472381010420996,
+      "n": 517,
+      "p": 0.36563436563436563,
+      "verdict": "NOT PROVEN (fails multiple-testing correction)",
+      "p_bonferroni": 1.0,
+      "survives_multiple_testing": false
+    },
+    {
+      "asset": "BTC 2011-2026",
+      "rule": "prev close (\u2265$10) digit-sum \u2261 0 mod 9",
+      "effect_ann": 0.3129807313573726,
+      "n": 569,
+      "p": 0.35364635364635366,
+      "verdict": "NOT PROVEN (fails multiple-testing correction)",
+      "p_bonferroni": 1.0,
+      "survives_multiple_testing": false
+    },
+    {
+      "asset": "ETH 2016-2026",
+      "rule": "master-number dates (digit sum 11/22/33)",
+      "effect_ann": 0.21999305293409624,
+      "n": 335,
+      "p": 0.4255744255744256,
+      "verdict": "NOT PROVEN (fails multiple-testing correction)",
+      "p_bonferroni": 1.0,
+      "survives_multiple_testing": false
+    },
+    {
+      "asset": "ETH 2016-2026",
+      "rule": "prev close (\u2265$10) digit-sum \u2261 0 mod 9",
+      "effect_ann": 2.36740411209848,
+      "n": 374,
+      "p": 0.008991008991008992,
+      "verdict": "NOT PROVEN (fails multiple-testing correction)",
+      "p_bonferroni": 0.07192807192807193,
+      "survives_multiple_testing": false
+    }
+  ],
+  "hour_of_day": [
+    {
+      "hour_utc": 0,
+      "ret_bp": -0.07684564711840902,
+      "vol_bp": 54.532049915547574,
+      "share_of_variance": 0.042739768866805104
+    },
+    {
+      "hour_utc": 1,
+      "ret_bp": -2.0767920808551197,
+      "vol_bp": 59.03209209130014,
+      "share_of_variance": 0.05014660143914092
+    },
+    {
+      "hour_utc": 2,
+      "ret_bp": -0.05981191825707661,
+      "vol_bp": 50.23124743769629,
+      "share_of_variance": 0.03626404143773723
+    },
+    {
+      "hour_utc": 3,
+      "ret_bp": 0.17951258567129483,
+      "vol_bp": 45.80783452633717,
+      "share_of_variance": 0.030158786038575046
+    },
+    {
+      "hour_utc": 4,
+      "ret_bp": 0.5234766889143374,
+      "vol_bp": 38.09665401360435,
+      "share_of_variance": 0.02086331737125227
+    },
+    {
+      "hour_utc": 5,
+      "ret_bp": 0.5773555188734778,
+      "vol_bp": 39.90692087982678,
+      "share_of_variance": 0.02289365027425463
+    },
+    {
+      "hour_utc": 6,
+      "ret_bp": -0.7360558482614924,
+      "vol_bp": 47.54170425819032,
+      "share_of_variance": 0.032492363281344756
+    },
+    {
+      "hour_utc": 7,
+      "ret_bp": 0.2645461025598847,
+      "vol_bp": 43.45378133529205,
+      "share_of_variance": 0.02713931700300235
+    },
+    {
+      "hour_utc": 8,
+      "ret_bp": 1.8102753087256378,
+      "vol_bp": 46.94396524289721,
+      "share_of_variance": 0.03171998082533094
+    },
+    {
+      "hour_utc": 9,
+      "ret_bp": 0.38507786551569617,
+      "vol_bp": 40.253202326558025,
+      "share_of_variance": 0.02328993612539792
+    },
+    {
+      "hour_utc": 10,
+      "ret_bp": 0.6092485661441006,
+      "vol_bp": 41.49448037224334,
+      "share_of_variance": 0.02475152653468019
+    },
+    {
+      "hour_utc": 11,
+      "ret_bp": 1.0260283037748263,
+      "vol_bp": 40.15685576919724,
+      "share_of_variance": 0.023191596771580236
+    },
+    {
+      "hour_utc": 12,
+      "ret_bp": 0.1590052900385002,
+      "vol_bp": 52.99765313082675,
+      "share_of_variance": 0.040368707754100994
+    },
+    {
+      "hour_utc": 13,
+      "ret_bp": -2.635603608166877,
+      "vol_bp": 64.78043770564128,
+      "share_of_variance": 0.060413516464611634
+    },
+    {
+      "hour_utc": 14,
+      "ret_bp": 0.8383820661817795,
+      "vol_bp": 78.5837585966189,
+      "share_of_variance": 0.0887651947079997
+    },
+    {
+      "hour_utc": 15,
+      "ret_bp": 1.0074028447845216,
+      "vol_bp": 72.64257342948405,
+      "share_of_variance": 0.07585665094678405
+    },
+    {
+      "hour_utc": 16,
+      "ret_bp": -1.2822900042208445,
+      "vol_bp": 58.47463388527833,
+      "share_of_variance": 0.04916676065926989
+    },
+    {
+      "hour_utc": 17,
+      "ret_bp": -0.07000357334491968,
+      "vol_bp": 61.897697323097766,
+      "share_of_variance": 0.05506519746290549
+    },
+    {
+      "hour_utc": 18,
+      "ret_bp": -0.1994948214277543,
+      "vol_bp": 58.35567100054374,
+      "share_of_variance": 0.04894393375918603
+    },
+    {
+      "hour_utc": 19,
+      "ret_bp": -1.793099093770363,
+      "vol_bp": 60.564347504088154,
+      "share_of_variance": 0.0527645788230914
+    },
+    {
+      "hour_utc": 20,
+      "ret_bp": 2.6321513805319454,
+      "vol_bp": 56.85660306911437,
+      "share_of_variance": 0.046560731027159595
+    },
+    {
+      "hour_utc": 21,
+      "ret_bp": 1.1116125013264007,
+      "vol_bp": 55.40229864365672,
+      "share_of_variance": 0.044132459425331796
+    },
+    {
+      "hour_utc": 22,
+      "ret_bp": 3.4377914226378805,
+      "vol_bp": 53.20944958880757,
+      "share_of_variance": 0.04086159603721789
+    },
+    {
+      "hour_utc": 23,
+      "ret_bp": -2.212338425271854,
+      "vol_bp": 46.72598880790201,
+      "share_of_variance": 0.03144978696323983
+    }
+  ],
+  "day_of_week": [
+    {
+      "day": "Mon",
+      "ret_bp": 25.37626000794367,
+      "vol_bp": 390.5501646635813,
+      "n": 456
+    },
+    {
+      "day": "Tue",
+      "ret_bp": -8.124311493284594,
+      "vol_bp": 340.05894265034476,
+      "n": 457
+    },
+    {
+      "day": "Wed",
+      "ret_bp": 27.75270687197796,
+      "vol_bp": 358.0432438974239,
+      "n": 457
+    },
+    {
+      "day": "Thu",
+      "ret_bp": -35.57445922084906,
+      "vol_bp": 421.0501430013003,
+      "n": 457
+    },
+    {
+      "day": "Fri",
+      "ret_bp": 19.34328436342263,
+      "vol_bp": 336.42253659818937,
+      "n": 457
+    },
+    {
+      "day": "Sat",
+      "ret_bp": 13.527464067511733,
+      "vol_bp": 219.097073279891,
+      "n": 457
+    },
+    {
+      "day": "Sun",
+      "ret_bp": -2.0339675891121063,
+      "vol_bp": 274.8326998054515,
+      "n": 456
+    }
+  ]
+}
