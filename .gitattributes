@@ -1,0 +1,2 @@
+ES[[:space:]]DATA/*.csv filter=lfs diff=lfs merge=lfs -text
+NQ[[:space:]]DATA/*.csv filter=lfs diff=lfs merge=lfs -text
