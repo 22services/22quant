@@ -117,6 +117,18 @@ enum Cmd {
         #[arg(short, long)]
         config: PathBuf,
     },
+    /// Convert a Databento all-contract OHLCV-1m CSV into a continuous, back-adjusted front-month series.
+    Databento {
+        /// Databento CSV (GLBX.MDP3 ohlcv-1m, symbols like ESM0 and spreads like ESM0-ESU0).
+        #[arg(long)]
+        input: PathBuf,
+        /// Product root to extract (ES, NQ, …).
+        #[arg(long)]
+        root: String,
+        /// Output CSV (unix_timestamp,open,high,low,close,volume,contract).
+        #[arg(long)]
+        out: PathBuf,
+    },
     /// Download the free research datasets (index CFD 5-min 2020-23, BTC hourly) into a folder.
     FetchData {
         #[arg(long, default_value = "data")]
@@ -148,6 +160,37 @@ async fn fetch_data(out: &std::path::Path) -> Result<()> {
         std::fs::write(&dest, &bytes)?;
         println!("{:.1} MB", bytes.len() as f64 / 1e6);
     }
+    Ok(())
+}
+
+fn databento(input: &std::path::Path, root: &str, out: &std::path::Path) -> Result<()> {
+    use q22_core::databento::{build_continuous, read_contracts, write_continuous};
+    use std::io::Write;
+    let t0 = std::time::Instant::now();
+    let f = std::fs::File::open(input).map_err(|e| anyhow::anyhow!("opening {}: {e}", input.display()))?;
+    let (contracts, st) = read_contracts(std::io::BufReader::with_capacity(1 << 20, f), root)?;
+    println!(
+        "{}: {} rows, {} spread rows dropped, {} other-root rows, {} {root} contracts ({:.1}s)",
+        input.display(), st.rows, st.spread_rows, st.other_root_rows, st.contracts, t0.elapsed().as_secs_f64()
+    );
+    let (bars, rolls, sessions) = build_continuous(&contracts)?;
+    if let Some(p) = out.parent() {
+        std::fs::create_dir_all(p)?;
+    }
+    let mut w = std::io::BufWriter::new(std::fs::File::create(out)?);
+    write_continuous(&mut w, &bars)?;
+    let log = out.with_extension("rolls.csv");
+    let mut lw = std::io::BufWriter::new(std::fs::File::create(&log)?);
+    writeln!(lw, "first_session,from,to,gap_points,measured_at_utc")?;
+    for r in &rolls {
+        writeln!(lw, "{},{},{},{},{}", r.day, r.from, r.to, r.gap, r.at.to_rfc3339())?;
+    }
+    let cum: f64 = rolls.iter().map(|r| r.gap).sum();
+    println!(
+        "continuous {root}: {} bars, {sessions} sessions, {} rolls (cumulative back-adjustment {cum:+.2} pts), {} → {}",
+        bars.len(), rolls.len(), bars.first().map(|b| b.bar.ts.to_rfc3339()).unwrap_or_default(), bars.last().map(|b| b.bar.ts.to_rfc3339()).unwrap_or_default()
+    );
+    println!("written {} and {} ({:.1}s)", out.display(), log.display(), t0.elapsed().as_secs_f64());
     Ok(())
 }
 
@@ -232,6 +275,7 @@ async fn main() -> Result<()> {
             backtest::save_json(&rep, &out.unwrap_or_else(|| backtest::default_report_path("reports", &label)))?;
         }
         Cmd::FetchData { out } => fetch_data(&out).await?,
+        Cmd::Databento { input, root, out } => tokio::task::spawn_blocking(move || databento(&input, &root, &out)).await??,
         Cmd::Check { config } => {
             let cfg = appcfg::AppConfig::load(&config)?;
             checklist(&cfg)?;
