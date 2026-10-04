@@ -1,0 +1,94 @@
+######## OOS 2019-01-02 → 2026-07-09 — frozen P3 — contract costs
+
+=== oos_P3_contract — rules topstep_50k ===
+data: MNQ 530413 bars of 5 min, 2019-01-02 → 2026-07-08
+data: MES 530533 bars of 5 min, 2019-01-02 → 2026-07-08
+net $11,009 (gross $15,357, costs $4,348) | trades 1484 | win 36.7% | PF 1.14 | avg +0.067R | expectancy $7/trade
+days 1944 (with trades 728) | daily Sharpe 0.51 ann | PSR(>0) 0.933 | DSR 0.242 (30 trials, benchmark SR 0.75) | MinTRL 2335 days
+max drawdown -$2,437 | best day $1,762 | worst day -$461 | net / max-loss 5.50
+prop replay: 12 attempts → 3 passed, 8 failed, 1 open | pass rate 27% | median active days (with a closed trade) to pass 48 / to fail 45 — see `q22 passrate` for calendar time
+strategy           trades   win%      PF    avg R         net
+nb_mes                378  38.4%    1.03   -0.018        $400
+nb_mnq               1106  36.1%    1.16   +0.096     $10,609
+regime             trades   win%      PF    avg R         net
+neutral               260  36.2%    1.08   +0.038      $1,177
+ranging               202  34.7%    1.51   +0.124      $4,654
+shock                 113  36.3%    1.06   +0.070        $420
+trending down         311  38.6%    1.13   +0.093      $2,249
+trending up           469  35.8%    1.11   +0.052      $2,792
+unknown (warm-up)      24  41.7%    0.65   -0.089       -$471
+volatile              105  39.0%    1.03   +0.047        $188
+regime days: neutral: 666, ranging: 585, shock: 336, trending down: 520, trending up: 1415, unknown (warm-up): 60, volatile: 296
+entries not taken (top reasons):
+     924  guard: cool-down between entries (nb_mes)
+     667  size: stop too wide for budget (nb_mes)
+     520  size: stop too wide for budget (nb_mnq)
+      11  guard: day halted (nb_mnq)
+       8  guard: day halted (nb_mes)
+       7  guard: consistency lock (nb_mnq)
+       5  guard: consistency lock (nb_mes)
+report written to reports/oos_P3_contract.json
+
+=== passrate_oos_P3_contract — rolling-start evaluations under topstep_50k ===
+data: MNQ 530413 bars of 5 min, 2019-01-02 → 2026-07-08
+data: MES 530533 bars of 5 min, 2019-01-02 → 2026-07-08
+380 evaluations (one every 5 sessions) → 139 passed, 170 failed, 71 open
+pass rate 45%  (95% CI 22–70% on ≈13 independent attempts — runs overlap)
+sessions to pass: median 125 (IQR 71–186) | sessions to fail: median 140 (IQR 81–191)
+  failed  170× guard stop: buffer below 25% of max loss
+report written to reports/passrate_oos_P3_contract.json
+######## OOS 2019-01-02 → 2026-07-09 — frozen P3 — bps costs
+
+=== oos_P3_bps — rules topstep_50k ===
+data: MNQ 530413 bars of 5 min, 2019-01-02 → 2026-07-08
+data: MES 530533 bars of 5 min, 2019-01-02 → 2026-07-08
+net $14,583 (gross $18,307, costs $3,724) | trades 1327 | win 38.1% | PF 1.22 | avg +0.107R | expectancy $11/trade
+days 1944 (with trades 671) | daily Sharpe 0.75 ann | PSR(>0) 0.988 | DSR 0.506 (30 trials, benchmark SR 0.75) | MinTRL 1020 days
+max drawdown -$2,737 | best day $1,433 | worst day -$427 | net / max-loss 7.29
+prop replay: 10 attempts → 5 passed, 4 failed, 1 open | pass rate 56% | median active days (with a closed trade) to pass 96 / to fail 45 — see `q22 passrate` for calendar time
+strategy           trades   win%      PF    avg R         net
+nb_mes                311  38.3%    1.00   -0.010        -$20
+nb_mnq               1016  38.0%    1.27   +0.143     $14,603
+regime             trades   win%      PF    avg R         net
+neutral               236  39.0%    1.29   +0.115      $3,538
+ranging               183  37.7%    1.49   +0.189      $4,055
+shock                  96  36.5%    1.23   +0.141      $1,346
+trending down         276  38.8%    1.01   +0.075        $112
+trending up           431  35.5%    1.15   +0.060      $3,147
+unknown (warm-up)      24  45.8%    0.76   -0.028       -$310
+volatile               81  46.9%    1.81   +0.264      $2,694
+regime days: neutral: 673, ranging: 596, shock: 322, trending down: 529, trending up: 1417, unknown (warm-up): 60, volatile: 281
+entries not taken (top reasons):
+     844  guard: cool-down between entries (nb_mes)
+     838  size: stop too wide for budget (nb_mes)
+     659  size: stop too wide for budget (nb_mnq)
+      10  guard: day halted (nb_mnq)
+       8  guard: day halted (nb_mes)
+report written to reports/oos_P3_bps.json
+
+=== passrate_oos_P3_bps — rolling-start evaluations under topstep_50k ===
+data: MNQ 530413 bars of 5 min, 2019-01-02 → 2026-07-08
+data: MES 530533 bars of 5 min, 2019-01-02 → 2026-07-08
+380 evaluations (one every 5 sessions) → 212 passed, 69 failed, 99 open
+pass rate 75%  (95% CI 48–91% on ≈12 independent attempts — runs overlap)
+sessions to pass: median 133 (IQR 67–239) | sessions to fail: median 114 (IQR 86–202)
+  failed   69× guard stop: buffer below 25% of max loss
+report written to reports/passrate_oos_P3_bps.json
+== contract — positive years 5/8
+2019  net   -1451   nb_mnq    -476   nb_mes    -976
+2020  net    1460   nb_mnq    1268   nb_mes     192
+2021  net     370   nb_mnq    1311   nb_mes    -941
+2022  net    6912   nb_mnq    5446   nb_mes    1466
+2023  net    2201   nb_mnq    2860   nb_mes    -659
+2024  net    2343   nb_mnq    1365   nb_mes     978
+2025  net    -705   nb_mnq   -1045   nb_mes     340
+2026  net    -121   nb_mnq    -121   nb_mes       0
+== bps — positive years 5/8
+2019  net   -1752   nb_mnq    -505   nb_mes   -1247
+2020  net    2800   nb_mnq    1949   nb_mes     851
+2021  net    1035   nb_mnq    1897   nb_mes    -862
+2022  net    8309   nb_mnq    7161   nb_mes    1148
+2023  net    4260   nb_mnq    4550   nb_mes    -290
+2024  net     575   nb_mnq     311   nb_mes     264
+2025  net    -521   nb_mnq    -637   nb_mes     116
+2026  net    -123   nb_mnq    -123   nb_mes       0

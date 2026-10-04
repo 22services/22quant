@@ -242,3 +242,37 @@ ORB was tried as a third bot (2 trials): MNQ Sharpe 0.44, MES −0.67. Rejected.
   is above $1k. The OOS report will state this plainly, together with the risk per trade
   that would meet it.
 * The next and only OOS run is 2019-01-02 → 2026-07-09 with both frozen configs.
+
+**D-6 (2026-10-04): the one OOS run (2019-01-02 → 2026-07-09), frozen P3 at $250.**
+File: `results/oos_P3.txt`; reports in `reports/oos_P3_*.json` and `reports/passrate_oos_P3_*.json`.
+
+| | Registered micro costs | bps costs |
+|---|---|---|
+| Net | +$11,009 | +$14,583 |
+| Daily Sharpe | 0.51 | 0.75 |
+| PF | 1.14 | 1.22 |
+| DSR (30 trials) | 0.24 | 0.51 |
+| Max DD | −$2,437 | −$2,737 |
+| Worst day | −$461 | −$427 |
+| Positive years | 5/8 | 5/8 |
+| Topstep 50K rolling pass rate | 45% (CI 22–70%) | 75% (CI 48–91%) |
+| Median sessions to pass | 125 | 133 |
+| MNQ bot | +$10.6k | +$14.6k |
+| MES bot | +$0.4k | −$0.0k |
+
+§5 verdict:
+
+| Criterion | Result |
+|---|---|
+| Net > 0 | ✓ |
+| Sharpe > 0.5 | ✓ (borderline with micro costs) |
+| ≥ 5 positive years | ✓ |
+| DD ≤ $1k | ✗ |
+| DSR ≥ 0.95 | ✗ |
+
+**Label: PLAUSIBLE, not VALIDATED.** About half of the OOS profit comes from 2022; 2025 and 2026 YTD
+are flat to negative. Observed defect (not fixed, so the OOS stays clean): the MES bot cannot size
+any trade once ES is above about 7,000. Its 0.5-ATR protective stop is then more than the $300 cap
+on risk (15% of the buffer), so it took no trades in 2026. The DD criterion would need roughly
+$100 of risk per trade (DD scales about linearly), at which size most signals cannot be sized
+at all.
