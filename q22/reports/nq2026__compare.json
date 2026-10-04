@@ -1,0 +1,611 @@
+[
+  {
+    "by_strategy": [
+      {
+        "avg_bars": 6.0,
+        "avg_r": -0.0022371364653243847,
+        "key": "last_half_hour",
+        "net": -0.5,
+        "profit_factor": -0.0,
+        "sum_r": -0.0022371364653243847,
+        "trades": 1,
+        "win_rate": 0.0
+      },
+      {
+        "avg_bars": 13.454545454545455,
+        "avg_r": -0.045588954448844844,
+        "key": "noise_breakout",
+        "net": -453.5,
+        "profit_factor": 0.8009655475093264,
+        "sum_r": -1.5044354968118798,
+        "trades": 33,
+        "win_rate": 0.30303030303030304
+      },
+      {
+        "avg_bars": 1.0,
+        "avg_r": -1.0166666666666666,
+        "key": "vwap_reversion",
+        "net": -122.0,
+        "profit_factor": -0.0,
+        "sum_r": -1.0166666666666666,
+        "trades": 1,
+        "win_rate": 0.0
+      }
+    ],
+    "prop": {
+      "attempts": 1,
+      "failed": 0,
+      "median_days_to_fail": null,
+      "median_days_to_pass": null,
+      "open": 1,
+      "pass_rate": 0.0,
+      "passed": 0,
+      "rules": "topstep_50k"
+    },
+    "summary": {
+      "avg_r": -0.07209540856982485,
+      "avg_trade_usd": -16.457142857142856,
+      "best_day": 455.0,
+      "costs": 55.5,
+      "days_with_trades": 25,
+      "dsr": 0.017683266984479307,
+      "dsr_benchmark_sr_ann": 2.455321791883686,
+      "dsr_trials": 11,
+      "expectancy_usd": -16.457142857142856,
+      "gross_pnl": -520.5,
+      "max_drawdown_usd": -1031.0,
+      "min_track_record_days": null,
+      "net_pnl": -576.0,
+      "pct_days_positive": 0.08181818181818182,
+      "profit_factor": 0.7600999583506872,
+      "psr_vs_zero": 0.28614365417325954,
+      "return_on_max_loss": -0.288,
+      "sharpe_daily_ann": -0.9006375687066674,
+      "start_balance": 50000.0,
+      "trades": 35,
+      "trading_days": 110,
+      "win_rate": 0.2857142857142857,
+      "worst_day": -276.0
+    },
+    "variant": "ALL · regime gating ON · adaptive ON"
+  },
+  {
+    "by_strategy": [
+      {
+        "avg_bars": 6.0,
+        "avg_r": -0.0022371364653243847,
+        "key": "last_half_hour",
+        "net": -0.5,
+        "profit_factor": -0.0,
+        "sum_r": -0.0022371364653243847,
+        "trades": 1,
+        "win_rate": 0.0
+      },
+      {
+        "avg_bars": 13.454545454545455,
+        "avg_r": -0.04537469059821737,
+        "key": "noise_breakout",
+        "net": -495.5,
+        "profit_factor": 0.786468433527257,
+        "sum_r": -1.497364789741173,
+        "trades": 33,
+        "win_rate": 0.30303030303030304
+      },
+      {
+        "avg_bars": 1.0,
+        "avg_r": -1.0166666666666666,
+        "key": "vwap_reversion",
+        "net": -122.0,
+        "profit_factor": -0.0,
+        "sum_r": -1.0166666666666666,
+        "trades": 1,
+        "win_rate": 0.0
+      }
+    ],
+    "prop": {
+      "attempts": 1,
+      "failed": 0,
+      "median_days_to_fail": null,
+      "median_days_to_pass": null,
+      "open": 1,
+      "pass_rate": 0.0,
+      "passed": 0,
+      "rules": "topstep_50k"
+    },
+    "summary": {
+      "avg_r": -0.07189338836780466,
+      "avg_trade_usd": -17.65714285714286,
+      "best_day": 455.0,
+      "costs": 55.5,
+      "days_with_trades": 26,
+      "dsr": 0.01631919551982669,
+      "dsr_benchmark_sr_ann": 2.455321791883686,
+      "dsr_trials": 11,
+      "expectancy_usd": -17.65714285714286,
+      "gross_pnl": -562.5,
+      "max_drawdown_usd": -1077.5,
+      "min_track_record_days": null,
+      "net_pnl": -618.0,
+      "pct_days_positive": 0.08181818181818182,
+      "profit_factor": 0.7470323372902169,
+      "psr_vs_zero": 0.2730888224863503,
+      "return_on_max_loss": -0.309,
+      "sharpe_daily_ann": -0.9665859490286909,
+      "start_balance": 50000.0,
+      "trades": 35,
+      "trading_days": 110,
+      "win_rate": 0.2857142857142857,
+      "worst_day": -276.0
+    },
+    "variant": "ALL · regime gating ON · adaptive OFF"
+  },
+  {
+    "by_strategy": [
+      {
+        "avg_bars": 6.0,
+        "avg_r": 0.16290726817042606,
+        "key": "last_half_hour",
+        "net": 32.5,
+        "profit_factor": null,
+        "sum_r": 0.16290726817042606,
+        "trades": 1,
+        "win_rate": 1.0
+      },
+      {
+        "avg_bars": 11.275,
+        "avg_r": -0.28553940667701716,
+        "key": "noise_breakout",
+        "net": -1430.0,
+        "profit_factor": 0.4782925939438161,
+        "sum_r": -11.421576267080686,
+        "trades": 40,
+        "win_rate": 0.275
+      },
+      {
+        "avg_bars": 37.666666666666664,
+        "avg_r": -0.5018241735208436,
+        "key": "orb",
+        "net": -121.95999999999185,
+        "profit_factor": 0.52071052424747,
+        "sum_r": -1.5054725205625308,
+        "trades": 3,
+        "win_rate": 0.3333333333333333
+      },
+      {
+        "avg_bars": 9.285714285714286,
+        "avg_r": 1.2052162811422293,
+        "key": "vwap_reversion",
+        "net": 722.0,
+        "profit_factor": 110.39393939384291,
+        "sum_r": 8.436513967995605,
+        "trades": 7,
+        "win_rate": 0.7142857142857143
+      }
+    ],
+    "prop": {
+      "attempts": 1,
+      "failed": 0,
+      "median_days_to_fail": null,
+      "median_days_to_pass": null,
+      "open": 1,
+      "pass_rate": 0.0,
+      "passed": 0,
+      "rules": "topstep_50k"
+    },
+    "summary": {
+      "avg_r": -0.08485544218582713,
+      "avg_trade_usd": -15.636470588235134,
+      "best_day": 455.0,
+      "costs": 100.5,
+      "days_with_trades": 33,
+      "dsr": 0.009154603441657083,
+      "dsr_benchmark_sr_ann": 2.455321791883686,
+      "dsr_trials": 11,
+      "expectancy_usd": -15.636470588235134,
+      "gross_pnl": -696.9599999999919,
+      "max_drawdown_usd": -1168.9600000000064,
+      "min_track_record_days": null,
+      "net_pnl": -797.4599999999919,
+      "pct_days_positive": 0.10909090909090909,
+      "profit_factor": 0.7343624044822593,
+      "psr_vs_zero": 0.2165716886913317,
+      "return_on_max_loss": -0.3987299999999959,
+      "sharpe_daily_ann": -1.2215573294242426,
+      "start_balance": 50000.0,
+      "trades": 51,
+      "trading_days": 110,
+      "win_rate": 0.35294117647058826,
+      "worst_day": -394.5
+    },
+    "variant": "ALL · no gating · no adaptive"
+  },
+  {
+    "by_strategy": [
+      {
+        "avg_bars": 13.081632653061224,
+        "avg_r": -0.14605092277798104,
+        "key": "noise_breakout",
+        "net": -1067.5,
+        "profit_factor": 0.6659364731653888,
+        "sum_r": -7.156495216121071,
+        "trades": 49,
+        "win_rate": 0.2857142857142857
+      }
+    ],
+    "prop": {
+      "attempts": 1,
+      "failed": 0,
+      "median_days_to_fail": null,
+      "median_days_to_pass": null,
+      "open": 1,
+      "pass_rate": 0.0,
+      "passed": 0,
+      "rules": "topstep_50k"
+    },
+    "summary": {
+      "avg_r": -0.14605092277798104,
+      "avg_trade_usd": -21.785714285714285,
+      "best_day": 455.0,
+      "costs": 91.5,
+      "days_with_trades": 32,
+      "dsr": 0.006577643027424029,
+      "dsr_benchmark_sr_ann": 2.455321791883686,
+      "dsr_trials": 11,
+      "expectancy_usd": -21.785714285714285,
+      "gross_pnl": -976.0,
+      "max_drawdown_usd": -1086.0,
+      "min_track_record_days": null,
+      "net_pnl": -1067.5,
+      "pct_days_positive": 0.08181818181818182,
+      "profit_factor": 0.6659364731653888,
+      "psr_vs_zero": 0.17010413546543063,
+      "return_on_max_loss": -0.53375,
+      "sharpe_daily_ann": -1.534799072846526,
+      "start_balance": 50000.0,
+      "trades": 49,
+      "trading_days": 110,
+      "win_rate": 0.2857142857142857,
+      "worst_day": -304.0
+    },
+    "variant": "noise_breakout alone (ungated)"
+  },
+  {
+    "by_strategy": [
+      {
+        "avg_bars": 12.705882352941176,
+        "avg_r": -0.09262613509110915,
+        "key": "noise_breakout",
+        "net": -608.5,
+        "profit_factor": 0.7499486336552291,
+        "sum_r": -3.149288593097711,
+        "trades": 34,
+        "win_rate": 0.29411764705882354
+      }
+    ],
+    "prop": {
+      "attempts": 1,
+      "failed": 0,
+      "median_days_to_fail": null,
+      "median_days_to_pass": null,
+      "open": 1,
+      "pass_rate": 0.0,
+      "passed": 0,
+      "rules": "topstep_50k"
+    },
+    "summary": {
+      "avg_r": -0.09262613509110915,
+      "avg_trade_usd": -17.897058823529413,
+      "best_day": 455.0,
+      "costs": 54.0,
+      "days_with_trades": 24,
+      "dsr": 0.016600256814616965,
+      "dsr_benchmark_sr_ann": 2.455321791883686,
+      "dsr_trials": 11,
+      "expectancy_usd": -17.897058823529413,
+      "gross_pnl": -554.5,
+      "max_drawdown_usd": -1063.5,
+      "min_track_record_days": null,
+      "net_pnl": -608.5,
+      "pct_days_positive": 0.08181818181818182,
+      "profit_factor": 0.7499486336552291,
+      "psr_vs_zero": 0.2765867617216045,
+      "return_on_max_loss": -0.30425,
+      "sharpe_daily_ann": -0.9475452646081371,
+      "start_balance": 50000.0,
+      "trades": 34,
+      "trading_days": 110,
+      "win_rate": 0.29411764705882354,
+      "worst_day": -276.0
+    },
+    "variant": "noise_breakout alone (gated)"
+  },
+  {
+    "by_strategy": [
+      {
+        "avg_bars": 30.75,
+        "avg_r": 0.09844530269518814,
+        "key": "orb",
+        "net": -121.91999999999825,
+        "profit_factor": 0.7604338599387032,
+        "sum_r": 0.39378121078075257,
+        "trades": 4,
+        "win_rate": 0.5
+      }
+    ],
+    "prop": {
+      "attempts": 1,
+      "failed": 0,
+      "median_days_to_fail": null,
+      "median_days_to_pass": null,
+      "open": 1,
+      "pass_rate": 0.0,
+      "passed": 0,
+      "rules": "topstep_50k"
+    },
+    "summary": {
+      "avg_r": 0.09844530269518814,
+      "avg_trade_usd": -30.479999999999563,
+      "best_day": 254.5,
+      "costs": 9.0,
+      "days_with_trades": 4,
+      "dsr": 0.0274091918398619,
+      "dsr_benchmark_sr_ann": 2.455321791883686,
+      "dsr_trials": 11,
+      "expectancy_usd": -30.479999999999563,
+      "gross_pnl": -112.91999999999825,
+      "max_drawdown_usd": -508.9200000000128,
+      "min_track_record_days": null,
+      "net_pnl": -121.91999999999825,
+      "pct_days_positive": 0.01818181818181818,
+      "profit_factor": 0.7604338599387032,
+      "psr_vs_zero": 0.3972188536763127,
+      "return_on_max_loss": -0.060959999999999126,
+      "sharpe_daily_ann": -0.38544163342899335,
+      "start_balance": 50000.0,
+      "trades": 4,
+      "trading_days": 110,
+      "win_rate": 0.5,
+      "worst_day": -342.320000000007
+    },
+    "variant": "orb alone (ungated)"
+  },
+  {
+    "by_strategy": [],
+    "prop": {
+      "attempts": 1,
+      "failed": 0,
+      "median_days_to_fail": null,
+      "median_days_to_pass": null,
+      "open": 1,
+      "pass_rate": 0.0,
+      "passed": 0,
+      "rules": "topstep_50k"
+    },
+    "summary": {
+      "avg_r": 0.0,
+      "avg_trade_usd": 0.0,
+      "best_day": 0.0,
+      "costs": -0.0,
+      "days_with_trades": 0,
+      "dsr": 0.05317593194580089,
+      "dsr_benchmark_sr_ann": 2.455321791883686,
+      "dsr_trials": 11,
+      "expectancy_usd": 0.0,
+      "gross_pnl": -0.0,
+      "max_drawdown_usd": 0.0,
+      "min_track_record_days": null,
+      "net_pnl": -0.0,
+      "pct_days_positive": 0.0,
+      "profit_factor": 0.0,
+      "psr_vs_zero": 0.5000000005,
+      "return_on_max_loss": -0.0,
+      "sharpe_daily_ann": 0.0,
+      "start_balance": 50000.0,
+      "trades": 0,
+      "trading_days": 110,
+      "win_rate": 0.0,
+      "worst_day": 0.0
+    },
+    "variant": "orb alone (gated)"
+  },
+  {
+    "by_strategy": [
+      {
+        "avg_bars": 5.846153846153846,
+        "avg_r": 0.0716037939373897,
+        "key": "last_half_hour",
+        "net": 216.60000000000582,
+        "profit_factor": 1.5568123393316344,
+        "sum_r": 0.9308493211860661,
+        "trades": 13,
+        "win_rate": 0.6923076923076923
+      }
+    ],
+    "prop": {
+      "attempts": 1,
+      "failed": 0,
+      "median_days_to_fail": null,
+      "median_days_to_pass": null,
+      "open": 1,
+      "pass_rate": 0.0,
+      "passed": 0,
+      "rules": "topstep_50k"
+    },
+    "summary": {
+      "avg_r": 0.0716037939373897,
+      "avg_trade_usd": 16.66153846153891,
+      "best_day": 153.0,
+      "costs": 19.5,
+      "days_with_trades": 13,
+      "dsr": 0.16684495487004591,
+      "dsr_benchmark_sr_ann": 2.455321791883686,
+      "dsr_trials": 11,
+      "expectancy_usd": 16.66153846153891,
+      "gross_pnl": 236.10000000000582,
+      "max_drawdown_usd": -205.5,
+      "min_track_record_days": 841.3231352139927,
+      "net_pnl": 216.60000000000582,
+      "pct_days_positive": 0.08181818181818182,
+      "profit_factor": 1.5568123393316344,
+      "psr_vs_zero": 0.723209710032424,
+      "return_on_max_loss": 0.10830000000000291,
+      "sharpe_daily_ann": 0.9329290783289783,
+      "start_balance": 50000.0,
+      "trades": 13,
+      "trading_days": 110,
+      "win_rate": 0.6923076923076923,
+      "worst_day": -205.0
+    },
+    "variant": "last_half_hour alone (ungated)"
+  },
+  {
+    "by_strategy": [
+      {
+        "avg_bars": 6.0,
+        "avg_r": 0.3390070034365336,
+        "key": "last_half_hour",
+        "net": 222.5,
+        "profit_factor": 446.0,
+        "sum_r": 1.017021010309601,
+        "trades": 3,
+        "win_rate": 0.6666666666666666
+      }
+    ],
+    "prop": {
+      "attempts": 1,
+      "failed": 0,
+      "median_days_to_fail": null,
+      "median_days_to_pass": null,
+      "open": 1,
+      "pass_rate": 0.0,
+      "passed": 0,
+      "rules": "topstep_50k"
+    },
+    "summary": {
+      "avg_r": 0.3390070034365336,
+      "avg_trade_usd": 74.16666666666667,
+      "best_day": 114.5,
+      "costs": 4.5,
+      "days_with_trades": 3,
+      "dsr": 0.34506544939569916,
+      "dsr_benchmark_sr_ann": 2.455321791883686,
+      "dsr_trials": 11,
+      "expectancy_usd": 74.16666666666667,
+      "gross_pnl": 227.0,
+      "max_drawdown_usd": -0.5,
+      "min_track_record_days": 39.92152548852996,
+      "net_pnl": 222.5,
+      "pct_days_positive": 0.01818181818181818,
+      "profit_factor": 446.0,
+      "psr_vs_zero": 0.9970438814225662,
+      "return_on_max_loss": 0.11125,
+      "sharpe_daily_ann": 2.1446932200917246,
+      "start_balance": 50000.0,
+      "trades": 3,
+      "trading_days": 110,
+      "win_rate": 0.6666666666666666,
+      "worst_day": -0.5
+    },
+    "variant": "last_half_hour alone (gated)"
+  },
+  {
+    "by_strategy": [
+      {
+        "avg_bars": 8.8,
+        "avg_r": 0.46097062545533696,
+        "key": "vwap_reversion",
+        "net": 1176.059999999954,
+        "profit_factor": 3.4188811188809662,
+        "sum_r": 6.914559381830054,
+        "trades": 15,
+        "win_rate": 0.5333333333333333
+      }
+    ],
+    "prop": {
+      "attempts": 1,
+      "failed": 0,
+      "median_days_to_fail": null,
+      "median_days_to_pass": null,
+      "open": 1,
+      "pass_rate": 0.0,
+      "passed": 0,
+      "rules": "topstep_50k"
+    },
+    "summary": {
+      "avg_r": 0.46097062545533696,
+      "avg_trade_usd": 78.40399999999694,
+      "best_day": 349.5999999999767,
+      "costs": 69.0,
+      "days_with_trades": 12,
+      "dsr": 0.5205711897930083,
+      "dsr_benchmark_sr_ann": 2.455321791883686,
+      "dsr_trials": 11,
+      "expectancy_usd": 78.40399999999694,
+      "gross_pnl": 1245.059999999954,
+      "max_drawdown_usd": -188.0,
+      "min_track_record_days": 65.18753662696416,
+      "net_pnl": 1176.059999999954,
+      "pct_days_positive": 0.06363636363636363,
+      "profit_factor": 3.4188811188809662,
+      "psr_vs_zero": 0.9839619211548065,
+      "return_on_max_loss": 0.588029999999977,
+      "sharpe_daily_ann": 2.5158717509264994,
+      "start_balance": 50000.0,
+      "trades": 15,
+      "trading_days": 110,
+      "win_rate": 0.5333333333333333,
+      "worst_day": -151.0
+    },
+    "variant": "vwap_reversion alone (ungated)"
+  },
+  {
+    "by_strategy": [
+      {
+        "avg_bars": 1.0,
+        "avg_r": -1.0166666666666666,
+        "key": "vwap_reversion",
+        "net": -122.0,
+        "profit_factor": -0.0,
+        "sum_r": -1.0166666666666666,
+        "trades": 1,
+        "win_rate": 0.0
+      }
+    ],
+    "prop": {
+      "attempts": 1,
+      "failed": 0,
+      "median_days_to_fail": null,
+      "median_days_to_pass": null,
+      "open": 1,
+      "pass_rate": 0.0,
+      "passed": 0,
+      "rules": "topstep_50k"
+    },
+    "summary": {
+      "avg_r": -1.0166666666666666,
+      "avg_trade_usd": -122.0,
+      "best_day": 0.0,
+      "costs": 1.5,
+      "days_with_trades": 1,
+      "dsr": 1.3047170432933797e-7,
+      "dsr_benchmark_sr_ann": 2.455321791883686,
+      "dsr_trials": 11,
+      "expectancy_usd": -122.0,
+      "gross_pnl": -120.5,
+      "max_drawdown_usd": -122.0,
+      "min_track_record_days": null,
+      "net_pnl": -122.0,
+      "pct_days_positive": 0.0,
+      "profit_factor": -0.0,
+      "psr_vs_zero": 0.02476472398163626,
+      "return_on_max_loss": -0.061,
+      "sharpe_daily_ann": -1.513574937328539,
+      "start_balance": 50000.0,
+      "trades": 1,
+      "trading_days": 110,
+      "win_rate": 0.0,
+      "worst_day": -122.0
+    },
+    "variant": "vwap_reversion alone (gated)"
+  }
+]

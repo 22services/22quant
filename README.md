@@ -11,6 +11,13 @@ The code is a small, auditable Python toolkit (`quant22/`) plus ten research scr
 whose outputs are committed in `results/`. Every claim in the report can be regenerated with one
 command.
 
+> **Trading system: [`q22/`](q22/README.md)** (Rust, no Python). An automated multi-strategy
+> engine for prop-firm accounts: Topstep via the TopstepX API, HyroTrader via Bybit. It
+> classifies the market regime every session, enforces each firm's rules through a compliance
+> guard, and comes with a local supervision dashboard. The same engine runs the backtest, the
+> replay demo, paper and live trading. Try it with no account:
+> `cd q22 && cargo run --release -p q22-app -- run -c config/demo_replay.toml`.
+
 ## Quick start
 
 ```bash

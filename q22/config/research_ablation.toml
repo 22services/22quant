@@ -1,0 +1,67 @@
+# q22 — the PRE-REGISTERED research design used for the ablation study (all four intraday
+# strategies, regime gating + adaptive health ON), MNQ and MES. Kept frozen for reproducibility.
+#
+#   q22 compare -c config/research_ablation.toml --data MNQ=data/USATECHIDXUSD_M5.csv --label ndx5m
+#   q22 compare -c config/research_ablation.toml --data MES=data/USA500IDXUSD_M5.csv  --label spx5m
+#   q22 compare -c config/research_ablation.toml --data MNQ=data/NQ_1m_sample_2026.csv --label nq2026
+
+mode = "auto"                    # auto | assist | signals
+
+[account]
+rules = "topstep_50k"            # see `q22 rules`
+
+[guard]
+risk_per_trade_usd = 250.0       # sizing budget before allocator multipliers
+risk_per_trade_frac = 0.0        # 0 disables the %-of-equity budget (prop futures use $)
+entry_start_et = "09:35"
+entry_end_et = "15:45"
+flatten_at_et = "15:58"
+max_trades_per_day = 6
+max_consecutive_losses = 3
+min_seconds_between_entries = 120
+max_orders_per_minute = 20
+min_hold_seconds = 30
+min_buffer_frac = 0.25
+consistency_lock_frac = 0.8
+max_buffer_risk_frac = 0.15
+news_events = []                 # e.g. ["2026-10-28T18:00:00Z"] for an FOMC decision
+news_before_min = 5
+news_after_min = 5
+flatten_before_news = false
+
+[allocator]
+regime_gating = true
+adaptive_health = true
+min_score = 0.5
+conflict_margin = 0.15
+health_window = 20
+
+[[instrument]]
+symbol = "MNQ"
+timeframe_min = 5
+slippage_ticks = 1.0
+
+[[instrument]]
+symbol = "MES"
+timeframe_min = 5
+slippage_ticks = 1.0
+
+[[strategy]]
+id = "noise_breakout"             # Zarattini-Aziz-Barbon intraday momentum: NDX 2020-23 Sharpe 1.26, SPX 1.02 (net, deflated for 11 trials: DSR 0.75 / 0.57)
+kind = "noise_breakout"
+
+[[strategy]]
+id = "orb"
+kind = "orb"
+[strategy.params]
+or_minutes = 15
+target_r = 2.0
+
+[[strategy]]
+id = "last_half_hour"
+kind = "last_half_hour"
+
+[[strategy]]
+id = "vwap_reversion"
+kind = "vwap_reversion"
+

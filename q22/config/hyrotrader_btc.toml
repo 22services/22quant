@@ -1,0 +1,57 @@
+# q22 — HyroTrader (crypto prop, executes on Bybit) or a personal Bybit account.
+# Strategy: the daily trend ensemble validated in the q22 research (BTC Sharpe ≈ 1.05 net 2014-2026).
+#
+#   Paper with free public data (no key):      broker = "paper", feed = "bybit_public"
+#   HyroTrader challenge (Bybit DEMO sub-account): broker = "bybit", feed = "broker",
+#                                              bybit_base = "https://api-demo.bybit.com"
+#   HyroTrader funded / personal Bybit:        broker = "bybit", feed = "broker", bybit_base = "https://api.bybit.com"
+#     export Q22_BYBIT_KEY=…  Q22_BYBIT_SECRET=…   (trade-only key, no withdrawal permission)
+#
+# HyroTrader rules enforced: ≤ 3% realised loss per position (q22 risks 1% with an exchange-side
+# stop on every entry), daily drawdown from the day's high, 10% max loss, 40% best-day consistency.
+# Bots: HyroTrader markets bot/API trading as allowed but its terms ban bots "except where expressly
+# permitted" — get written confirmation from support first, or run mode = "assist" (you approve
+# each entry in the dashboard; this strategy trades ~15 times a year).
+
+mode = "auto"
+
+[account]
+rules = "hyrotrader_2step_phase1"
+size = 10000.0
+
+[guard]
+risk_per_trade_frac = 0.015      # 1.5% at the stop (firm max 3%); the guard caps risk at 15% of the buffer = $150
+max_trades_per_day = 2
+max_consecutive_losses = 3
+min_buffer_frac = 0.2
+
+[allocator]
+regime_gating = false            # one strategy: nothing to allocate between
+adaptive_health = false
+
+[[instrument]]
+symbol = "BTCUSDT"
+timeframe_min = 60
+slippage_ticks = 5.0
+
+[[strategy]]
+id = "daily_trend"
+kind = "daily_trend"
+[strategy.params]
+entry_score = 0.3
+exit_score = 0.05
+stop_atr = 3.0
+target_vol = 0.30
+allow_short = true
+
+[runtime]
+broker = "paper"
+feed = "bybit_public"
+bybit_base = "https://api.bybit.com"   # public klines; use https://api-demo.bybit.com for demo trading
+poll_secs = 30
+warmup_days = 200                      # the trend score needs ~130 daily closes
+state_dir = "../state/hyrotrader"
+
+[dashboard]
+bind = "127.0.0.1:8723"
+reports_dir = "../reports"

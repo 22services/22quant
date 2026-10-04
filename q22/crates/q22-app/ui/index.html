@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>q22 — supervision</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%232a78d6'/%3E%3Cpath d='M3 11l3-4 3 2 4-5' stroke='white' stroke-width='1.6' fill='none'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="top">
+  <div class="brand">q22<small>supervision</small></div>
+  <span id="mode" class="pill"><span class="dot"></span><span>—</span></span>
+  <span id="status" class="pill"><span class="dot"></span><span>connecting…</span></span>
+  <span id="conn" class="pill"><span class="dot"></span><span>—</span></span>
+  <span class="clock" id="clock">ET --:-- · CT --:--</span>
+  <span class="spacer"></span>
+  <button class="btn" id="btn-pause" title="Stop opening new trades (open positions keep their stops)">Pause</button>
+  <button class="btn danger" id="btn-flatten" title="Close every position now and pause">Flatten all</button>
+  <button class="btn danger" id="btn-kill" title="Flatten and stop the engine">Kill switch</button>
+  <button class="btn" id="btn-theme" aria-label="Toggle light / dark">◐</button>
+</header>
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-tab="live">Live</button>
+  <button role="tab" aria-selected="false" data-tab="backtests">Backtests</button>
+  <button role="tab" aria-selected="false" data-tab="rules">Rules &amp; compliance</button>
+</nav>
+<main>
+  <div class="banner" id="banner"></div>
+
+  <section id="tab-live">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid">
+      <div class="stack">
+        <div class="card">
+          <h2><span id="chart-title">Price</span> <span class="muted" id="chart-sub"></span><span class="spacer"></span>
+            <select id="symbol-select" aria-label="Instrument"></select></h2>
+          <div>
+            <span class="key"><i class="box" style="background:var(--series-1)"></i>up bar</span>
+            <span class="key"><i class="box" style="background:var(--down)"></i>down bar</span>
+            <span class="key"><i style="background:var(--series-2)"></i>session VWAP</span>
+            <span class="key">▲▼ entries · ● exits</span>
+          </div>
+          <div class="chart" id="price-chart"><div class="legend" id="price-legend"></div></div>
+        </div>
+        <div class="card">
+          <h2>Decision log <span class="muted">every entry, block and exit with its reason</span></h2>
+          <div class="filters">
+            <label>Show <select id="log-filter">
+              <option value="all">all</option>
+              <option value="trading">trades &amp; fills</option>
+              <option value="blocks">blocks &amp; skips</option>
+              <option value="risk">risk &amp; halts</option>
+              <option value="regime">regime</option>
+            </select></label>
+            <input type="search" id="log-search" placeholder="filter text…" aria-label="Filter log">
+          </div>
+          <div class="log" id="log"></div>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card" id="approvals-card">
+          <h2>Awaiting your approval <span class="muted">assist mode</span></h2>
+          <div id="approvals"></div>
+        </div>
+        <div class="card">
+          <h2>Position</h2>
+          <div id="position"></div>
+        </div>
+        <div class="card">
+          <h2>Market regime <span class="muted">from completed daily bars</span></h2>
+          <div id="regime"></div>
+        </div>
+        <div class="card">
+          <h2>Strategies <span class="muted">fit × health → allocation</span></h2>
+          <div id="strategies"></div>
+        </div>
+        <div class="card">
+          <h2>Account equity <span class="muted">end of each trading day · today live</span></h2>
+          <div class="chart small" id="equity-chart"><div class="legend" id="equity-legend"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h2>Closed trades <span class="muted" id="trades-sub"></span></h2>
+      <div class="scroll"><table id="trades"></table></div>
+    </div>
+  </section>
+
+  <section id="tab-backtests" class="hidden">
+    <div class="filters">
+      <label>Report <select id="report-select"><option value="">— choose a report —</option></select></label>
+      <span class="muted" id="report-meta"></span>
+    </div>
+    <div id="report-body"><div class="empty">Run <code>q22 backtest</code> or <code>q22 compare</code>; reports appear here.</div></div>
+  </section>
+
+  <section id="tab-rules" class="hidden">
+    <div class="split">
+      <div class="card"><h2>Compliance checklist</h2><div id="checklist"></div></div>
+      <div class="card"><h2>Firm rules in force</h2><div id="rules"></div></div>
+      <div class="card"><h2>Guard (your stricter limits)</h2><div id="guard"></div></div>
+      <div class="card"><h2>Notes &amp; sources</h2><div id="notes"></div></div>
+    </div>
+  </section>
+</main>
+<dialog id="confirm"><p id="confirm-text"></p><form method="dialog" style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" value="cancel">Cancel</button><button class="btn danger" value="ok">Confirm</button></form></dialog>
+<footer>q22 — research software, not investment advice. Charts by <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView Lightweight Charts™</a> — Copyright © 2025 TradingView, Inc.</footer>
+<script src="/vendor/lightweight-charts.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

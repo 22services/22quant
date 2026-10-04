@@ -1,0 +1,13 @@
+=== ablation: 11 variants (DSR deflated for 11 trials) ===
+variant                                  trades   win%     PF     avgR        net  Sharpe     maxDD    PSR    DSR      pass
+ALL · regime gating ON · adaptive ON         35  28.6%   0.76   -0.072      -$576   -0.90   -$1,031  0.286  0.018   0/0  
+ALL · regime gating ON · adaptive OFF        35  28.6%   0.75   -0.072      -$618   -0.97   -$1,078  0.273  0.016   0/0  
+ALL · no gating · no adaptive                51  35.3%   0.73   -0.085      -$797   -1.22   -$1,169  0.217  0.009   0/0  
+noise_breakout alone (ungated)               49  28.6%   0.67   -0.146    -$1,068   -1.53   -$1,086  0.170  0.007   0/0  
+noise_breakout alone (gated)                 34  29.4%   0.75   -0.093      -$608   -0.95   -$1,064  0.277  0.017   0/0  
+orb alone (ungated)                           4  50.0%   0.76   +0.098      -$122   -0.39     -$509  0.397  0.027   0/0  
+orb alone (gated)                             0   0.0%   0.00   +0.000         $0    0.00        $0  0.500  0.053   0/0  
+last_half_hour alone (ungated)               13  69.2%   1.56   +0.072       $217    0.93     -$206  0.723  0.167   0/0  
+last_half_hour alone (gated)                  3  66.7% 446.00   +0.339       $222    2.14       -$0  0.997  0.345   0/0  
+vwap_reversion alone (ungated)               15  53.3%   3.42   +0.461     $1,176    2.52     -$188  0.984  0.521   0/0  
+vwap_reversion alone (gated)                  1   0.0%  -0.00   -1.017      -$122   -1.51     -$122  0.025  0.000   0/0  

@@ -1,0 +1,15 @@
+[package]
+name = "q22-engine"
+description = "Regime detection, multi-strategy allocation, prop-firm rule engine, compliance guard and bar backtester."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+q22-core.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+chrono-tz.workspace = true
+rand.workspace = true
