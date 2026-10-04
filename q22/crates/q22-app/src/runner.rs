@@ -88,8 +88,51 @@ async fn make_broker(cfg: &AppConfig) -> Result<Arc<dyn Broker>> {
             tracing::info!("connected to Bybit ({}), equity {:.2}", cfg.runtime.bybit_base, a.balance);
             Arc::new(b)
         }
+        BrokerKind::Rithmic => {
+            #[cfg(feature = "rithmic")]
+            {
+                let mut b = q22_broker::rithmic::Rithmic::from_env()?;
+                let a = b.connect().await.context("Rithmic connect")?;
+                tracing::info!("connected to Rithmic account {}, balance {:.2}", a.name, a.balance);
+                Arc::new(b)
+            }
+            #[cfg(not(feature = "rithmic"))]
+            return Err(anyhow!("this build has no Rithmic support: rebuild with the default features"));
+        }
+        BrokerKind::Tradovate => {
+            let mut b = q22_broker::tradovate::Tradovate::from_env()?;
+            let a = b.connect().await.context("Tradovate connect")?;
+            tracing::info!("connected to Tradovate account {} ({}), balance {:.2}", a.name, a.id, a.balance);
+            Arc::new(b)
+        }
         BrokerKind::Paper => return Err(anyhow!("paper has no remote broker")),
     })
+}
+
+/// `q22 broker-check`: connect, print the account, positions and the last bars of each
+/// configured instrument. Read-only — never places an order.
+pub async fn broker_check(cfg: &AppConfig) -> Result<()> {
+    if cfg.runtime.broker == BrokerKind::Paper {
+        return Err(anyhow!("[runtime] broker is \"paper\": nothing to check"));
+    }
+    let b = make_broker(cfg).await?;
+    let a = b.account().await?;
+    println!("✓ {} account {} ({}) balance {:.2} can_trade {}", b.name(), a.name, a.id, a.balance, a.can_trade);
+    for p in b.positions().await? {
+        println!("  open position {} {:+} @ {:.2}", p.symbol, p.qty, p.avg_price);
+    }
+    for ic in &cfg.engine.instruments {
+        let sym = ic.broker_symbol.clone().unwrap_or_else(|| ic.symbol.clone());
+        match b.bars(&sym, ic.timeframe_min, Utc::now() - Duration::days(3)).await {
+            Ok(bars) => match bars.last() {
+                Some(l) => println!("✓ {sym}: {} bars of {} min, last {} close {:.2}", bars.len(), ic.timeframe_min, l.ts, l.close),
+                None => println!("! {sym}: no bars returned (market closed or no data entitlement?)"),
+            },
+            Err(e) => println!("✗ {sym}: bars failed: {e:#}"),
+        }
+    }
+    println!("read-only check complete — no order was sent");
+    Ok(())
 }
 
 impl Runner {
@@ -108,9 +151,11 @@ impl Runner {
             FeedKind::Replay => {
                 let from = cfg.runtime.replay_from.as_deref().map(|s| NaiveDate::parse_from_str(s, "%Y-%m-%d")).transpose()?;
                 let mut stream = vec![];
+                // with replay_from, only load what the warm-up needs (long histories stay fast)
+                let load_from = from.map(|d| d - Duration::days(cfg.runtime.warmup_days + 10));
                 for ic in &cfg.engine.instruments {
                     let path = cfg.runtime.replay_files.get(&ic.symbol).ok_or_else(|| anyhow!("[runtime.replay_files] has no file for {}", ic.symbol))?;
-                    let bars = datafiles::load(&cfg.rel(path), None, ic.timeframe_min, None, None)?;
+                    let bars = datafiles::load(&cfg.rel(path), None, ic.timeframe_min, load_from, None)?;
                     stream.extend(bars.into_iter().map(|b| (ic.symbol.clone(), b)));
                 }
                 stream.sort_by_key(|(s, b)| (b.ts, s.clone()));

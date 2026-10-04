@@ -18,6 +18,11 @@ pub enum BrokerKind {
     Projectx,
     /// Bybit v5 (HyroTrader sub-account or personal). Needs Q22_BYBIT_KEY / Q22_BYBIT_SECRET.
     Bybit,
+    /// Rithmic R|Protocol (Lucid Trading and other Rithmic prop firms). Needs Q22_RITHMIC_* and a
+    /// conformance-approved app name.
+    Rithmic,
+    /// Tradovate REST + market-data WebSocket (personal Tradovate accounts only). Needs Q22_TRADOVATE_*.
+    Tradovate,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]

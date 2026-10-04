@@ -170,6 +170,49 @@ impl PropRules {
             "hyrotrader_2step_phase1" => hyro(size.unwrap_or(10_000.0), 0.10, 0.10, 0.05, "2step_phase1"),
             "hyrotrader_2step_phase2" => hyro(size.unwrap_or(10_000.0), 0.05, 0.10, 0.05, "2step_phase2"),
             "hyrotrader_1step" => hyro(size.unwrap_or(10_000.0), 0.10, 0.06, 0.04, "1step"),
+            "lucidflex_50k" | "lucidpro_50k" => {
+                let flex = name == "lucidflex_50k";
+                PropRules {
+                    name: name.into(),
+                    firm: format!("Lucid Trading {} (Rithmic R|Protocol)", if flex { "LucidFlex" } else { "LucidPro" }),
+                    account_size: 50_000.0,
+                    profit_target: Some(3_000.0),
+                    max_loss: 2_000.0,
+                    drawdown_mode: DrawdownMode::EodTrailing,
+                    threshold_lock_at: Some(50_000.0),
+                    // LucidPro: $1,200 daily loss limit, a soft breach (no new trades until the next session)
+                    daily_loss_limit: if flex { None } else { Some(1_200.0) },
+                    daily_loss_mode: DailyLossMode::FromDayStart,
+                    daily_loss_fails_account: false,
+                    consistency_share: if flex { Some(0.5) } else { None },
+                    consistency_mode: ConsistencyMode::ShareOfTotalProfit,
+                    min_trading_days: if flex { 2 } else { 0 },
+                    max_contracts_mini: Some(4.0),
+                    max_leverage: None,
+                    flat_by_ct: Some("15:45".into()), // 4:45 PM ET
+                    overnight_allowed: false,
+                    stop_required_within_s: None,
+                    max_risk_per_trade_pct: None,
+                    automation: Automation::Full,
+                    vps_vpn_prohibited: false,
+                    hft_prohibited: true,
+                    notes: vec![
+                        "Bots, EAs and API strategies allowed in evaluation and funded accounts; HFT is the only automation ban.".into(),
+                        "Own-code automation goes through Rithmic R|Protocol: pass Rithmic's conformance test first (it assigns the app-name prefix).".into(),
+                        "Tradovate's API is NOT available on prop/evaluation accounts (Tradovate policy) — use Rithmic.".into(),
+                        if flex { "Evaluation consistency: no single day above 50% of total profit; min 2 trading days; no daily loss limit.".into() } else { "Evaluation: no consistency rule, no minimum days; $1,200 soft daily loss limit.".into() },
+                        "All positions must be flat by 4:45 PM ET (Lucid auto-closes). Max 4 minis / 40 micros on 50K.".into(),
+                        "Verify the max-loss lock level and any VPS/VPN policy on lucidtrading.com before going live.".into(),
+                    ],
+                    sources: vec![
+                        "https://tradetanto.com/learn/lucid-trading-rules-explained-every-plan-rule-and-limit".into(),
+                        "https://proptradingvibes.com/blog/lucid-trading-50k-account-rules".into(),
+                        "https://damnpropfirms.com/prop-firms/lucid-trading-rules-payouts/".into(),
+                        "https://proptradingvibes.com/blog/lucid-trading-platforms".into(),
+                        "https://support.tradovate.com/s/article/Tradovate-API-Access?language=en_US".into(),
+                    ],
+                }
+            }
             "apex_100k_eod" => PropRules {
                 name: "apex_100k_eod".into(),
                 firm: "Apex Trader Funding (assist mode only on PA)".into(),
@@ -227,7 +270,7 @@ impl PropRules {
     }
 
     pub fn preset_names() -> &'static [&'static str] {
-        &["topstep_50k", "topstep_100k", "topstep_150k", "hyrotrader_2step_phase1", "hyrotrader_2step_phase2", "hyrotrader_1step", "apex_100k_eod", "personal"]
+        &["topstep_50k", "topstep_100k", "topstep_150k", "lucidflex_50k", "lucidpro_50k", "hyrotrader_2step_phase1", "hyrotrader_2step_phase2", "hyrotrader_1step", "apex_100k_eod", "personal"]
     }
 }
 

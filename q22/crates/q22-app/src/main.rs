@@ -112,6 +112,11 @@ enum Cmd {
         #[arg(long, default_value = "127.0.0.1:8722")]
         bind: String,
     },
+    /// Connect to the configured broker and print account, positions and recent bars. Read-only.
+    BrokerCheck {
+        #[arg(short, long)]
+        config: PathBuf,
+    },
     /// Validate a config and print the compliance checklist.
     Check {
         #[arg(short, long)]
@@ -375,6 +380,10 @@ async fn main() -> Result<()> {
             backtest::save_json(&rep, &out.unwrap_or_else(|| backtest::default_report_path("reports", &label)))?;
         }
         Cmd::FetchData { out } => fetch_data(&out).await?,
+        Cmd::BrokerCheck { config } => {
+            let cfg = appcfg::AppConfig::load(&config)?;
+            runner::broker_check(&cfg).await?;
+        }
         Cmd::Databento { input, root, out, adjust } => tokio::task::spawn_blocking(move || databento(&input, &root, &out, &adjust)).await??,
         Cmd::Study { nq, es, from, to, force_oos, only, cost, out } => tokio::task::spawn_blocking(move || study(&nq, &es, from, to, force_oos, only, &cost, &out)).await??,
         Cmd::Check { config } => {

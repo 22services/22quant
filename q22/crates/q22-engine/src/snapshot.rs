@@ -45,13 +45,28 @@ pub fn snapshot(e: &Engine, max_bars: usize) -> Value {
                 })
                 .collect();
             let bars: Vec<Value> = rt.market.recent.iter().rev().take(max_bars).rev().map(|b| json!([b.ts.timestamp(), b.open, b.high, b.low, b.close, b.volume])).collect();
+            // Noise area (Zarattini et al.) at the latest bar: where price sits relative to the
+            // band drives the NQ/ES confirmation filter shown in the dashboard.
+            let noise = match (s, rt.market.recent.back()) {
+                (Some(s), Some(last)) if rt.market.in_session(last.ts) => {
+                    let offset = rt.market.offset_end(last);
+                    rt.market.noise_sigma(offset).map(|sigma| {
+                        let pc = s.prev_close.unwrap_or(s.open);
+                        let (ub, lb) = (s.open.max(pc) * (1.0 + sigma), s.open.min(pc) * (1.0 - sigma));
+                        let px = rt.last_price;
+                        let state = if px > ub { "above" } else if px < lb { "below" } else { "inside" };
+                        json!({"offset": offset, "sigma": sigma, "upper": ub, "lower": lb, "state": state})
+                    })
+                }
+                _ => None,
+            };
             json!({
                 "symbol": rt.spec.symbol, "description": rt.spec.description, "broker_symbol": rt.broker_symbol,
                 "timeframe_min": rt.tf_minutes, "last_price": if rt.last_price.is_finite() { json!(rt.last_price) } else { Value::Null },
                 "last_bar_end": rt.last_bar_end, "point_value": rt.spec.point_value(), "tick_size": rt.spec.tick_size,
                 "regime": reg, "regime_label": reg.label(), "features": rt.market.features,
                 "session": s.map(|s| json!({"date": s.date, "open": s.open, "high": s.high, "low": s.low, "vwap": s.vwap(), "vwap_std": s.vwap_std(), "prev_close": s.prev_close, "bars": s.bars})),
-                "position": pos, "strategies": strategies, "bars": bars,
+                "position": pos, "strategies": strategies, "bars": bars, "noise": noise,
             })
         })
         .collect();

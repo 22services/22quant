@@ -5,14 +5,21 @@
 //!   ($14.50–29/month), from your own device (no VPS/VPN), actively monitored.
 //! * [`bybit`] — Bybit v5 REST API (linear perpetuals). **HyroTrader** funded accounts are Bybit
 //!   sub-accounts operated through this API; it is also the free public data feed for crypto.
+//! * [`rithmic`] — Rithmic R | Protocol (WebSocket + protobuf, via `rithmic-rs`): **Lucid
+//!   Trading** and other Rithmic-cleared prop firms, after Rithmic's conformance test.
+//! * [`tradovate`] — Tradovate REST + market-data WebSocket, for *personal* Tradovate accounts
+//!   (Tradovate does not give API access to prop/evaluation accounts).
 //!
-//! Both adapters are deliberately thin, polling-based and auditable: money-moving calls are
-//! never retried automatically, every call is rate-limited below the provider's published
-//! limits, and protective stops are always resting on the broker's side so a crash of this
-//! program never leaves a position unprotected.
+//! The adapters are deliberately thin and auditable: money-moving calls are never retried
+//! automatically, calls are rate-limited below the provider's published limits, automated
+//! orders carry the exchange's automated-order flag, and protective stops always rest on the
+//! broker's side so a crash of this program never leaves a position unprotected.
 
 pub mod bybit;
 pub mod projectx;
+#[cfg(feature = "rithmic")]
+pub mod rithmic;
+pub mod tradovate;
 
 use anyhow::Result;
 use async_trait::async_trait;

@@ -11,27 +11,41 @@ $14.50/month with the Topstep code (otherwise $29). Bybit's API, the market data
 libraries are free. **No Python anywhere**: Rust (tokio, axum, reqwest) plus a vanilla-JS
 dashboard using TradingView Lightweight Charts.
 
-> **The honest bottom line (details in [Results](#results))**
-> * One strategy survived the testing: **intraday momentum with a noise area**
->   (Zarattini–Aziz–Barbon 2024). Net of costs on 2020-09→2023-09 5-minute data it made Sharpe
->   **1.26** on Nasdaq-100 and **1.02** on S&P 500. Deflated for the 11 variants tried, that is
->   a DSR of 0.75 and 0.57: probably real, not proven.
-> * The other three intraday ideas lost money or added nothing after costs. **Regime gating
->   lowered Sharpe in every variant**, so it ships disabled. You can switch it on; it is
->   measured, not assumed.
-> * Under Topstep 50K rules, rolling-start replays pass **≈59% of evaluations on MNQ**
->   (95% CI 30–84%). A pass takes a median **61 sessions (≈3 months)**. Expect about **6 months
->   and $500–600 in fees** to reach one funded account. The **2026 NQ sample (110 sessions) lost
->   money** (Sharpe −1.5, 49 trades): too short to judge, but it is the most recent data.
-> * Nothing here makes money *quickly*. It is a disciplined way to buy a call option on a modest
->   edge, with fixed, known costs.
+> **The honest bottom line (16 years of real NQ/ES futures, details in [§7](#7-results--16-years-of-nq-and-es-futures-20102026))**
+> * **NQ/ES divergence (SMT/SSMT) as a reversal signal has no edge.**
+>   * Pre-registered tests: 8 SMT/SSMT variants plus spread reversion/momentum, lead–lag and
+>     gap divergence, on 2,178 in-sample sessions. Every one failed.
+>   * After an SMT event, price drifts by **0.00 ATR** at 30, 60 and 120 minutes, the same as
+>     random entries.
+> * **Divergence is useful as a *filter*.**
+>   * A momentum breakout the other index *does not confirm* is a much worse trade, in all four
+>     tests.
+>   * The shipped bots only take **breakouts confirmed by both NQ and ES**.
+> * **The combined bot** (MNQ and MES intraday momentum, each confirmed by the other index) was
+>   frozen in-sample, then tested once on 2019-01 → 2026-07 with real micro costs:
+>
+>   | OOS result | Value |
+>   |---|---|
+>   | Net | **+$11.0k**, PF 1.14, Sharpe 0.51 |
+>   | Max drawdown | −$2.4k |
+>   | Worst day | −$461 |
+>   | Positive years | 5 of 8 |
+>   | Topstep/Lucid 50K pass rate (rolling) | **≈45%** (CI 22–70%) |
+>   | Median time to pass | ~6 months |
+>
+>   **Label: PLAUSIBLE, not proven.** The deflated Sharpe after 30 trials is 0.24, and 2025–2026
+>   YTD is flat to negative.
+> * **Lucid works through Rithmic** (after Rithmic's one-time conformance test). Tradovate's API
+>   is closed to prop accounts. LucidFlex (one-time fee) makes each attempt about 3× cheaper
+>   than Topstep's monthly billing.
+> * Nothing here makes money *quickly*. Run `signals` first, then `assist`, before `auto`.
 
 ---
 
 ## 1. Two-minute demo (no account, no key)
 
 ```bash
-curl https://sh.rustup.rs -sSf | sh          # once: install Rust (stable ≥ 1.82)
+curl https://sh.rustup.rs -sSf | sh          # once: install Rust (stable ≥ 1.85)
 cd q22
 cargo run --release -p q22-app -- run -c config/demo_replay.toml
 # → open the http://127.0.0.1:8722/?token=… URL printed in the terminal
@@ -53,6 +67,9 @@ signal, every block and its reason, fills, the account buffer and the equity cur
 | `q22 passrate -c … --data …` | Starts a fresh evaluation every N sessions: probability of passing, time to pass or fail, CI. |
 | `q22 serve --reports reports` | Dashboard for reports only (no engine). |
 | `q22 fetch-data --out data` | Downloads the free research datasets (index 5-min 2020-23, BTC hourly). |
+| `q22 databento --input … --root NQ --out … [--adjust panama\|ratio]` | Databento all-contract OHLCV-1m → continuous front month: volume roll without look-ahead, Panama or ratio back-adjustment, plus a roll log. |
+| `q22 study [--cost contract\|bps]` | The pre-registered NQ/ES event studies (SMT/SSMT, relative value, lead–lag, gaps), with placebo and null groups. **In-sample only** unless `--force-oos`. |
+| `q22 broker-check -c …` | Connects to the configured broker (ProjectX, Rithmic, Tradovate, Bybit) and prints the account, positions and recent bars. **Read-only.** |
 
 All commands are run as `cargo run --release -p q22-app -- <command> …`, or use
 `target/release/q22` after one build. Reproduce every number in this README:
@@ -78,7 +95,9 @@ It **refuses to start live `auto` mode on a firm that does not allow it**.
 |---|---|---|---|
 | **Topstep** (Combine → Express Funded) | **Yes, through the TopstepX API**, which must be actively monitored. **No VPS, VPN or remote servers**: run it on your own computer. HFT, micro-scalping and max size into tier-1 news are banned. | ProjectX Gateway REST (`api.topstepx.com`), API key from your Topstep dashboard | **Implemented** (`config/topstep_50k_live.toml`) |
 | **HyroTrader** (crypto, Bybit) | Marketed as allowed, **but** the terms ban bots "except where expressly permitted". **Get written confirmation from support**, or use `assist` mode. The challenge trades a Bybit **demo** sub-account. | Bybit v5 REST (`api-demo.bybit.com` for the challenge, `api.bybit.com` when funded) | **Implemented** (`config/hyrotrader_btc.toml`) |
-| **Lucid Trading** | Yes, in evaluation and funded accounts (HFT banned) | Rithmic / Tradovate | Not implemented (needs a Rithmic or Tradovate adapter) |
+| **Lucid Trading** (LucidFlex / LucidPro) | **Yes**, in evaluation and funded accounts; HFT is the only automation ban. Flat by 4:45 PM ET. | **Rithmic R \| Protocol** (WebSocket + protobuf, via `rithmic-rs`). It needs Rithmic's one-time **conformance test**, which gives you the app-name prefix and URL. | **Implemented** (`config/nq_es_lucidflex_50k.toml`, presets `lucidflex_50k` and `lucidpro_50k`) |
+| Tradovate-hosted prop accounts (Lucid, Apex, Tradeify…) | Tradovate itself **does not give API access to prop or evaluation accounts**. A personal API key cannot reach them. | Only authorised partner bridges (TradingView webhooks via PickMyTrade or TradersPost) | Not supported. Use Rithmic for Lucid. |
+| Your own Tradovate account | Yes: funded account of at least $1,000 plus the $25/month API add-on (CME data for the API is extra) | Tradovate REST + market-data WebSocket | **Implemented** (`broker = "tradovate"`) |
 | **Apex Trader Funding** | Evaluation yes; **fully automated trading prohibited on PA/Live** | — | Preset `apex_100k_eod` → use `mode = "assist"` (you click every entry) |
 
 If you trade your own Bybit account, use the `personal` preset: a 25% kill-switch drawdown and a
@@ -87,14 +106,15 @@ If you trade your own Bybit account, use the `personal` preset: a 25% kill-switc
 ## 4. Architecture
 
 ```
- bars (CSV replay | TopstepX | Bybit | Bybit public)
-   │
+ bars (CSV replay | TopstepX | Rithmic | Tradovate | Bybit | Bybit public)
+   │   all instruments of one timestamp are ingested together, then each decides
    ▼
  MarketState ── daily layer: ATR, ADX, efficiency ratio, vol percentile → Regime
    │            session layer: VWAP, noise profile σ(time-of-day), opening range, gap
    ▼
  Strategies (noise_breakout, orb, last_half_hour, vwap_reversion, daily_trend)
-   │  each proposes: side, stop, target, confidence, reason
+   │  each proposes: side, stop, target, confidence, reason — and may read its peers
+   │  (e.g. noise_breakout's NQ ↔ ES confirmation filter)
    ▼
  Allocator  score = regime affinity × health × confidence; one net position per instrument
    ▼
@@ -102,21 +122,26 @@ If you trade your own Bybit account, use the `personal` preset: a 25% kill-switc
    ▼
  ComplianceGuard ── refuses or flattens with a written reason (see §6)
    ▼
- Commands → SimBroker (backtest/paper)  or  Broker (ProjectX / Bybit) → fills → PropTracker
+ Commands → SimBroker (backtest/paper)  or  Broker (ProjectX / Rithmic / Tradovate / Bybit) → fills → PropTracker
    ▼
  Snapshot → dashboard (SSE stream) + journal (state/trades.jsonl)
 ```
 
 | Crate | Contents |
 |---|---|
-| `q22-core` | Bars, instruments (NQ/MNQ/ES/MES/YM/MYM/RTY/M2K/MBT/BTC/ETH/SOL), CME/crypto sessions, CSV loaders (auto-detected formats and time zones), indicators, statistics (PSR, DSR, MinTRL). |
-| `q22-engine` | Regime classifier, strategies, allocator, prop rules and tracker, compliance guard, engine, backtester and pass-rate study, dashboard snapshot. |
-| `q22-broker` | `Broker` trait. ProjectX (TopstepX / The Futures Desk) with rate limiting and token refresh. Bybit v5 with HMAC signing and exchange-side stops. |
-| `q22-app` | `q22` CLI, live runner (reconciliation, unmanaged-position handling, CRITICAL flatten on errors), axum dashboard, embedded UI. |
+| `q22-core` | Bars, instruments (NQ/MNQ/ES/MES/YM/MYM/RTY/M2K/MBT/BTC/ETH/SOL), CME/crypto sessions, CME front-month calendar, CSV loaders (auto-detected formats and time zones), the Databento continuous-series builder, indicators, statistics (PSR, DSR, MinTRL). |
+| `q22-engine` | Regime classifier, strategies (cross-asset aware), allocator, prop rules and tracker, compliance guard, engine, backtester and pass-rate study, dashboard snapshot. |
+| `q22-broker` | `Broker` trait. **ProjectX** (TopstepX) with rate limiting and token refresh. **Rithmic** R \| Protocol (Lucid) via `rithmic-rs`, with exchange-side brackets. **Tradovate** REST + market-data WebSocket. **Bybit** v5 with HMAC signing and exchange-side stops. |
+| `q22-research` | Pre-registered event studies on aligned NQ/ES minutes: trade simulation with costs, time-matched placebo, null groups, forward-drift diagnostics. |
+| `q22-app` | `q22` CLI, live runner (timestamp synchronisation across instruments, reconciliation, unmanaged-position handling, CRITICAL flatten on errors), axum dashboard, embedded UI. |
 
-About 7,900 lines of Rust and JS. 36 unit tests (`cargo test --workspace`) cover the HMAC test
-vectors, sessions, indicators and DSR, prop rules, guard rules, the allocator, the fill model
-(stop before target inside one bar), end-to-end backtests and the pass-rate study.
+About 10,900 lines of Rust and JS. 48 unit tests (`cargo test --workspace`) cover:
+* the HMAC test vectors and the Rithmic/Tradovate message handling;
+* the Databento roll and back-adjustment, the CME roll calendar and sessions;
+* indicators and DSR;
+* prop rules, guard rules and the allocator;
+* the fill model (stop before target inside one bar), the research simulator, end-to-end
+  backtests and the pass-rate study.
 
 ## 5. Strategies and market conditions
 
@@ -130,6 +155,15 @@ regimes it suits.
 | `last_half_hour` | Overnight + first half-hour return predicts the last half-hour [Gao, Han, Li & Zhou 2018] | all but shock | off (lost money) |
 | `vwap_reversion` | Fade 2σ VWAP extensions on non-trending days | ranging, neutral | off (no edge after costs) |
 | `daily_trend` | BTC/ETH time-series momentum ensemble (20/60/120-day returns, EWMA crossovers, 55-day breakout), Chandelier stop, vol targeting [Moskowitz, Ooi & Pedersen 2012; q22 research] | any, 24/7 | on for crypto |
+
+`noise_breakout` has two options:
+* `exit_mode`: `resting` is a trailing stop at max(band, VWAP); `checks` is the paper's
+  30-minute exits with a protective stop at `protect_atr` × daily ATR.
+* `peer_filter`: `confirm` trades a breakout only if the other index is also outside its own
+  noise area on the same side; `diverge` trades only unconfirmed breakouts and exists for
+  measurement.
+
+The shipped NQ/ES portfolio uses `confirm` on both bots (§7.3).
 
 **Regime** is classified once per session from completed daily bars, with no look-ahead:
 Shock → Trending up/down → Volatile → Ranging → Neutral, first match wins. The inputs are
@@ -179,14 +213,135 @@ Firm rules modelled in `prop.rs`:
 * profit target, minimum trading days, overnight permission, flat-by time, max risk per
   position, max leverage.
 
-## 7. Results
+## 7. Results — 16 years of NQ and ES futures (2010–2026)
+
+### 7.1 Data and method
+
+* **Data:** Databento GLBX `ohlcv-1m`, every ES and NQ contract, 2010-06-06 → 2026-07-09.
+  `q22 databento` turns it into a continuous front-month series:
+  * Databento's one-digit years are resolved (ESM0 means 2010 *or* 2020);
+  * the series rolls when the next contract out-traded the front on the previous session;
+  * it produces 65 rolls and 4,144 sessions.
+* **Back-adjustment:**
+  * Panama (exact point P&L) for the registered tests;
+  * ratio (exact percentages) for the cost model below.
+* **Pre-registration:** [`research/PREREGISTRATION.md`](research/PREREGISTRATION.md) fixed
+  everything before any result was computed, and was committed to git:
+  * the hypotheses and their parameters;
+  * the fill model;
+  * the in-sample period, **2010-06 → 2018-12**;
+  * the out-of-sample period, **2019-01 → 2026-07**, touched once by a frozen portfolio;
+  * the pass criteria.
+
+  Every later change is in its deviation log. All **30 trials** count toward the Deflated Sharpe.
+* **Two cost models, both always reported:**
+  * the registered one: $0.75 commission plus 1 tick per side per micro;
+  * a **today-calibrated basis-point model** (MNQ 0.25 bp, MES 0.615 bp per side). It shows
+    whether a rule would pay at 2026 costs, because a micro's fixed cost was 3–10× larger
+    relative to price when NQ traded at 2,000.
+
+### 7.2 Divergence as a reversal signal: rejected
+
+In-sample results, 2,178 sessions (files: `results/study_is.txt` and `results/study_is_bps.txt`):
+
+| Hypothesis | Trades | Net R per trade (registered costs / bps) | Gross R | vs placebo t | Verdict |
+|---|---|---|---|---|---|
+| A1–A4: SMT at previous-session, overnight, opening-range and 1-min fractal extremes (8 variants) | 977–2,692 | −0.33…−0.52 / −0.13…−0.23 | −0.08…−0.02 | −1.3…+1.4 | **fail** |
+| B1/B2: intraday NQ–ES spread z ≥ 2, fade or follow (4) | 1,158 | about −0.12 / −0.03 | about 0 | ≤ 0.6 | **fail** |
+| C1: lead–lag at 5 minutes | 254 | −0.34 / −0.10 | 0.00 | −0.5 | **fail** |
+| D2: fade breakouts the other index does not confirm | 1,454 | −0.08 / +0.01 | +0.04 | 1.1 | **fail** |
+| E1: opposite-sign opening gaps | 21 | | | | too rare |
+| A1n: *both* indices sweep the previous-session extreme, then fail (snooped from a null group) | 198 | +0.12 (bps) | +0.17 | 1.6 | **fail** (t 1.2) |
+
+The forward drift after SMT events is under **0.01 daily ATR** at +30, +60 and +120 minutes.
+SMT carries no directional information on NQ/ES 1-minute data.
+
+### 7.3 Divergence as a filter: the useful part
+
+The same momentum rule (noise-area breakout) was split by whether the other index confirms the
+breakout (in-sample, bps costs):
+
+| Variant | Confirmed: Sharpe | Divergent: Sharpe |
+|---|---|---|
+| MNQ, resting trail | 1.17 | 0.51 |
+| MNQ, 30-min exits | 0.91 | 0.03 |
+| MES, resting trail | 0.51 | −0.32 |
+| MES, 30-min exits | 0.68 | −0.17 |
+
+**Unconfirmed breakouts are much worse every time.** The shipped bots therefore trade only
+breakouts confirmed by both NQ and ES. The dashboard's "NQ ↔ ES confirmation" panel shows the
+state live.
+
+### 7.4 The frozen portfolio
+
+Two bots, frozen before the OOS run:
+* **nb_mnq:** MNQ momentum, resting trail, confirmed by MES;
+* **nb_mes:** MES momentum, the paper's 30-minute exits, confirmed by MNQ.
+
+Both risk $250 per trade, inside the guard's 15%-of-buffer cap.
+
+| Period | Costs | Net | Sharpe | Max DD | Worst day | Years + | Topstep 50K pass (CI) | Median sessions to pass |
+|---|---|---|---|---|---|---|---|---|
+| IS 2010–18 | bps | +$41.9k | 1.16 | −$4.6k | −$557 | | 52% (36–68%) | 54 |
+| **OOS 2019–26** | **micro, registered** | **+$11.0k** | **0.51** | −$2.4k | −$461 | **5/8** | **45% (22–70%)** | 125 |
+| OOS 2019–26 | bps | +$14.6k | 0.75 | −$2.7k | −$427 | 5/8 | 75% (48–91%) | 133 |
+
+OOS pass rates under Lucid's rules (micro costs / bps):
+* **LucidFlex 50K:** 45% / 75%;
+* **LucidPro 50K:** 42% / 71%.
+
+**What to take from this:**
+* **It wins, modestly.** The sum of the bots is positive out-of-sample under both cost
+  models, and the worst day is well inside every firm's daily limit.
+* **It is not proven.**
+  * The deflated Sharpe after 30 trials is 0.24 with micro costs and 0.51 with bps costs.
+  * About half of the OOS profit comes from 2022.
+  * 2025 and 2026 YTD are flat to negative.
+* **The drawdown misses my own pre-registered "prop-friendly" bar.** The 7.5-year max DD
+  ($2.4k at $250 per trade) is above the $1k target. Meeting it needs about $100 risk per
+  trade, at which most signals cannot be sized.
+* **Two known weaknesses, left unfixed so the OOS stays clean:**
+  * The MES bot cannot size a trade once ES is above about 7,000 (its 0.5-ATR stop is more than
+    the $300 cap), so it did not trade in 2026.
+  * After a drawdown, the shrinking 15%-of-buffer cap can make even MNQ trades unsizable
+    (visible in the replay), which freezes the account until it recovers.
+* **The bot was evaluated as one account.** The bots share the guard (cool-down,
+  anti-hedge), exactly as they would live.
+
+### 7.5 Cost of one funded account (OOS, micro costs)
+
+Assumes a 45% pass rate and about 6 months per evaluation:
+
+| Firm | Fee model | Expected fees per funded account |
+|---|---|---|
+| Topstep 50K | $49/month + $149 activation | ≈ **$800** (+ API $14.50/month) |
+| LucidFlex 50K | one-time ~$136 | ≈ **$300** (Rithmic data/API fees per your plan) |
+
+Fees change often; check them before you buy.
+
+Reproduce:
+```bash
+q22 databento --input "../NQ DATA/glbx-mdp3-20100606-20260709.ohlcv-1m.csv" --root NQ --out data/databento/NQ_c1_1m.csv
+q22 databento --input "../ES DATA/glbx-mdp3-20100606-20260709.ohlcv-1m.csv" --root ES --out data/databento/ES_c1_1m.csv
+#   (repeat both with --adjust ratio --out data/databento/{NQ,ES}_c1_1m_ratio.csv for the bps model)
+q22 study                     # registered costs, in-sample
+q22 study --cost bps          # today-calibrated costs, in-sample
+research/run_is_matrix.sh     # engine variants, in-sample
+research/run_is_portfolios.sh # portfolio selection, in-sample
+q22 backtest -c config/research/frozen_P3_contract.toml --data MNQ=data/databento/NQ_c1_1m.csv \
+  --data MES=data/databento/ES_c1_1m.csv --from 2019-01-02 --to 2026-07-09 --trials 30 --label oos_P3_contract
+q22 passrate -c config/research/frozen_P3_contract.toml --data MNQ=data/databento/NQ_c1_1m.csv \
+  --data MES=data/databento/ES_c1_1m.csv --from 2019-01-02 --to 2026-07-09
+```
+
+## 8. Earlier results on free data (2020–23 index CFDs, BTC)
 
 The data is public and free (see [`data/README.md`](data/README.md)). Costs are always
 included: MNQ/MES commission per side plus 1 tick of slippage on every market fill. Fills happen
 at the next bar's open. A stop is assumed to fill first when stop and target are both inside one
 bar, and a target needs a one-tick trade-through.
 
-### 7.1 Ablation — 11 variants, Deflated Sharpe corrected for 11 trials
+### 8.1 Ablation — 11 variants, Deflated Sharpe corrected for 11 trials
 
 The design was pre-registered in `config/research_ablation.toml`: four intraday strategies,
 Topstep 50K rules, $250 risk budget, 5-minute bars. Full tables are in
@@ -214,7 +369,7 @@ How to read it:
 * `last_half_hour` failed on both indices, even though the Gao et al. effect was published.
   Intraday edges decay once they are published (McLean & Pontiff 2016).
 
-### 7.2 Probability of passing — rolling-start evaluations (`q22 passrate`)
+### 8.2 Probability of passing — rolling-start evaluations (`q22 passrate`)
 
 A sequential replay only contains 5–12 evaluations in three years. So `q22 passrate` starts a
 fresh Topstep 50K Combine **every 5 sessions** and lets the engine trade it until it passes or
@@ -244,7 +399,7 @@ it. Topstep would not yet close it.
 **The consistency lock helps.** With the lock: 59% on NDX and 50% on S&P. Without it: 58% and
 41%.
 
-### 7.3 Crypto: BTC daily trend on HyroTrader rules
+### 8.3 Crypto: BTC daily trend on HyroTrader rules
 
 These numbers are for 2014-01→2026-10, hourly bars, HyroTrader 2-step phase 1 ($10k, +10%
 target, 10% max loss, 5% daily from the day's high), 1.5% risk per trade with an exchange-side
@@ -265,7 +420,7 @@ there is no time limit, so it can work as a patient side position. It is not a f
 The guard caps risk at 15% of the buffer, which is $150 (1.5%). Raising the risk setting further
 changed nothing.
 
-### 7.4 What is *not* modelled
+### 8.4 What is *not* modelled
 
 * The funded stage: Topstep Express Funded payout rules (changed in April 2026), scaling plans,
   HyroTrader's funded-stage limits (25% margin cap, 2× notional).
@@ -274,14 +429,21 @@ changed nothing.
   close proxy for MNQ/MES but not the futures themselves. The bundled 2026 file *is* NQ futures.
 * News days, unless you list the events (`news_events`).
 
-## 8. Going live on Topstep (checklist)
+## 9. Going live (Topstep, Lucid)
+
+The NQ/ES portfolio ships as `config/nq_es_topstep_50k.toml` and `config/nq_es_lucidflex_50k.toml`
+(both start in `mode = "signals"`). `config/nq_es_replay.toml` replays it on your Databento
+files with no account.
+
+**Topstep:**
 
 1. Run the demo. Read the decision log until every block reason makes sense to you.
 2. Buy a 50K Combine and subscribe to the TopstepX API (code `topstep`: $14.50/month). Create an
    API key.
 3. Set your credentials (environment variables only, never in config files):
    `export Q22_PROJECTX_USER=… Q22_PROJECTX_KEY=…`
-4. Check the config: `q22 check -c config/topstep_50k_live.toml`. Add the week's tier-1 news
+4. Check the config: `q22 check -c config/nq_es_topstep_50k.toml`, then
+   `q22 broker-check -c config/nq_es_topstep_50k.toml` (read-only). Add the week's tier-1 news
    times (UTC) to `news_events`.
 5. Run it **on your own computer** (no VPS, VPN or cloud). Start with `mode = "signals"` for a
    week, then `assist`, then `auto`.
@@ -291,17 +453,45 @@ changed nothing.
 8. Kill switch: the dashboard button or Ctrl-C. Both flatten everything when
    `flatten_on_exit = true`.
 
-For HyroTrader, use `config/hyrotrader_btc.toml` and switch to `broker = "bybit"`. Set
+**Lucid (through Rithmic):**
+
+1. **Conformance (one time).**
+   * Ask Rithmic for the R | Protocol API dev kit and pass their conformance test, run on their
+     test system.
+   * Rithmic then gives you the **app-name prefix** and the production/paper **WebSocket URL**.
+   * Without it, Rithmic refuses the login. That is Rithmic's rule, not q22's.
+2. **Credentials** (environment only):
+   ```
+   export Q22_RITHMIC_URL=wss://…  Q22_RITHMIC_SYSTEM="<the system name shown in R|Trader Pro for your Lucid login>"
+   export Q22_RITHMIC_USER=…  Q22_RITHMIC_PASSWORD=…  Q22_RITHMIC_APP_NAME=<prefix>:q22
+   ```
+   Optional: `Q22_RITHMIC_ACCOUNT`, if your login has several accounts.
+3. **Read-only check.** `q22 broker-check -c config/nq_es_lucidflex_50k.toml` should list your
+   account and front-month bars for MNQ and MES.
+4. **Run.** `q22 run -c config/nq_es_lucidflex_50k.toml`.
+   * Use `signals` for a week, then `assist`, then `auto`.
+   * Every entry is an exchange-side market bracket with the CME automated-order flag.
+   * Positions are flat by 15:58 ET, earlier than Lucid's 4:45 PM cut-off.
+
+The Rithmic and Tradovate adapters are tested against message-level unit tests and their
+library's documented API. **They have not been run against a live Rithmic or Tradovate server
+from this environment**, because no credentials are available here. Do the read-only check, then
+paper-trade, before risking an evaluation.
+
+**HyroTrader:** use `config/hyrotrader_btc.toml` and switch to `broker = "bybit"`. Set
 `bybit_base = "https://api-demo.bybit.com"` for the challenge, export `Q22_BYBIT_KEY` and
 `Q22_BYBIT_SECRET` (a trade-only key with no withdrawal permission), and get HyroTrader's written
 OK for bots first.
 
-## 9. Dashboard and security
+## 10. Dashboard and security
 
 * **Live tab:** KPIs (balance, buffer meter, today's P&L against the loss stop and the profit
   lock, trades), candles with VWAP, entry and exit markers and the stop and target lines,
   position, regime and its features, the strategy table (fit × health → allocation), daily
-  equity, the closed trades, and a filterable decision log.
+  equity, the closed trades, and a filterable decision log. With two index instruments it also
+  shows the **NQ ↔ ES confirmation panel**: each index's % move since the open, where it sits
+  against its noise area, and whether a breakout is confirmed, divergent (skipped) or absent.
+  All times are New York time.
 * **Backtests tab:** any report in `reports/`: P&L curve, breakdowns by strategy, regime and exit
   reason, prop attempts, trades, and pass-rate studies.
 * **Rules tab:** the compliance checklist, firm rules, guard limits and sources.
@@ -310,7 +500,7 @@ OK for bots first.
   no third-party scripts at runtime: the chart library is vendored, Apache-2.0 with the
   attribution shown.
 
-## 10. Sources
+## 11. Sources
 
 **Strategies and statistics**
 * Zarattini, Aziz & Barbon (2024), *Beat the Market: An Effective Intraday Momentum Strategy for
@@ -345,12 +535,25 @@ OK for bots first.
     https://thetrustedprop.com/blogs/hyrotrader-review-2026-rules-fees-payouts
   * Rules overview — https://www.proptradingvibes.com/blog/hyrotrader-rules-overview
 * Bybit v5 API — https://bybit-exchange.github.io/docs/v5/position/trading-stop
-* Lucid Trading automation — https://tradetanto.com/learn/lucid-trading-rules-explained-every-plan-rule-and-limit ·
-  https://velotrade.com/blog/lucid-trading-review
+* Lucid Trading:
+  * Rules and automation — https://tradetanto.com/learn/lucid-trading-rules-explained-every-plan-rule-and-limit ·
+    https://velotrade.com/blog/lucid-trading-review
+  * 50K plans — https://proptradingvibes.com/blog/lucid-trading-50k-account-rules ·
+    https://damnpropfirms.com/prop-firms/lucid-trading-rules-payouts/
+  * Platforms — https://proptradingvibes.com/blog/lucid-trading-platforms
+* Tradovate API access (prop and evaluation accounts not eligible; $25/month add-on) —
+  https://support.tradovate.com/s/article/Tradovate-API-Access?language=en_US ·
+  https://partner.tradovate.com/api/rest-api-endpoints/authentication/access-token-request
+* Rithmic:
+  * R | Protocol API — https://www.rithmic.com/apis
+  * Conformance requirement — https://blog.pickmytrade.io/rithmic-access-denied-api-access-level-error-fix/
+  * `rithmic-rs` Rust client (MIT/Apache-2.0) — https://crates.io/crates/rithmic-rs
 * Apex PA automation ban —
   https://support.apextraderfunding.com/hc/en-us/articles/31519788944411-Performance-Account-PA-and-Compliance
 
 **Data**
+* Databento GLBX.MDP3 OHLCV-1m (ES and NQ, 2010–2026; your licensed copy, not redistributed) —
+  https://databento.com/datasets/GLBX.MDP3
 * NQ 1-minute 2026 sample (MIT) — https://github.com/getdata-finance/nq-1m-ohlcv-stocks-historical-data
 * Index 5-minute 2020-23 (MIT) — https://github.com/TheSnowGuru/Stocks-Futures-Financial-Time-series-Tick-Bar-Data
 * BTC hourly — https://github.com/mouadja02/bitcoin-technical-indicators-dataset

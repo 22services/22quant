@@ -1,0 +1,24 @@
+### lucidflex_50k — contract costs — OOS 2019-01-02 → 2026-07-09
+=== passrate_oos_P3_lucidflex_50k_contract — rolling-start evaluations under lucidflex_50k ===
+380 evaluations (one every 5 sessions) → 139 passed, 170 failed, 71 open
+pass rate 45%  (95% CI 22–70% on ≈13 independent attempts — runs overlap)
+sessions to pass: median 125 (IQR 71–186) | sessions to fail: median 140 (IQR 81–191)
+  failed  170× guard stop: buffer below 25% of max loss
+### lucidflex_50k — bps costs — OOS 2019-01-02 → 2026-07-09
+=== passrate_oos_P3_lucidflex_50k_bps — rolling-start evaluations under lucidflex_50k ===
+380 evaluations (one every 5 sessions) → 212 passed, 69 failed, 99 open
+pass rate 75%  (95% CI 48–91% on ≈12 independent attempts — runs overlap)
+sessions to pass: median 133 (IQR 67–239) | sessions to fail: median 114 (IQR 86–202)
+  failed   69× guard stop: buffer below 25% of max loss
+### lucidpro_50k — contract costs — OOS 2019-01-02 → 2026-07-09
+=== passrate_oos_P3_lucidpro_50k_contract — rolling-start evaluations under lucidpro_50k ===
+380 evaluations (one every 5 sessions) → 132 passed, 181 failed, 67 open
+pass rate 42%  (95% CI 21–67% on ≈14 independent attempts — runs overlap)
+sessions to pass: median 123 (IQR 68–183) | sessions to fail: median 135 (IQR 83–191)
+  failed  181× guard stop: buffer below 25% of max loss
+### lucidpro_50k — bps costs — OOS 2019-01-02 → 2026-07-09
+=== passrate_oos_P3_lucidpro_50k_bps — rolling-start evaluations under lucidpro_50k ===
+380 evaluations (one every 5 sessions) → 204 passed, 83 failed, 93 open
+pass rate 71%  (95% CI 44–89% on ≈12 independent attempts — runs overlap)
+sessions to pass: median 138 (IQR 66–239) | sessions to fail: median 119 (IQR 91–192)
+  failed   83× guard stop: buffer below 25% of max loss

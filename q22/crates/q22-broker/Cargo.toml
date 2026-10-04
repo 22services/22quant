@@ -18,3 +18,12 @@ sha2.workspace = true
 hex.workspace = true
 async-trait.workspace = true
 tracing.workspace = true
+rithmic-rs = { version = "3.2", optional = true }
+tokio-tungstenite = { version = "0.30", features = ["rustls-tls-native-roots"] }
+futures.workspace = true
+
+[features]
+default = ["rithmic"]
+# Rithmic R|Protocol (Lucid and other Rithmic-cleared prop firms). Uses native TLS: on Linux it
+# needs OpenSSL headers (libssl-dev); build with --no-default-features to leave it out.
+rithmic = ["dep:rithmic-rs"]

@@ -13,3 +13,4 @@
 !/reports/ndx5m__noise_breakout_alone_ungated.json
 !/reports/spx5m__noise_breakout_alone_ungated.json
 /data/databento/
+!/reports/oos_P3_*.json

@@ -40,18 +40,18 @@ pub struct ProjectXConfig {
     pub live_data: bool,
 }
 
-struct RateWindow {
+pub(crate) struct RateWindow {
     window: StdDuration,
     max: usize,
     hits: VecDeque<Instant>,
 }
 
 impl RateWindow {
-    fn new(max: usize, secs: u64) -> Self {
+    pub(crate) fn new(max: usize, secs: u64) -> Self {
         Self { window: StdDuration::from_secs(secs), max, hits: VecDeque::new() }
     }
     /// Seconds to wait before the next request is allowed.
-    fn admit(&mut self) -> Option<StdDuration> {
+    pub(crate) fn admit(&mut self) -> Option<StdDuration> {
         let now = Instant::now();
         while self.hits.front().is_some_and(|t| now.duration_since(*t) > self.window) {
             self.hits.pop_front();

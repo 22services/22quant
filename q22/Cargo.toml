@@ -6,7 +6,7 @@ members = ["crates/q22-core", "crates/q22-engine", "crates/q22-broker", "crates/
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-rust-version = "1.82"
+rust-version = "1.85"
 authors = ["22services"]
 
 [workspace.dependencies]
@@ -32,7 +32,7 @@ async-trait = "0.1"
 
 q22-core = { path = "crates/q22-core" }
 q22-engine = { path = "crates/q22-engine" }
-q22-broker = { path = "crates/q22-broker" }
+q22-broker = { path = "crates/q22-broker", default-features = false }
 q22-research = { path = "crates/q22-research" }
 
 [profile.release]

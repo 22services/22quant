@@ -276,3 +276,13 @@ any trade once ES is above about 7,000. Its 0.5-ATR protective stop is then more
 on risk (15% of the buffer), so it took no trades in 2026. The DD criterion would need roughly
 $100 of risk per trade (DD scales about linearly), at which size most signals cannot be sized
 at all.
+
+**D-7 (2026-10-04): the frozen P3 under Lucid rules (OOS, reporting only — no selection).**
+Rolling-start pass rates, 2019-01-02 → 2026-07-09 (`results/oos_P3_lucid.txt`):
+
+| Plan | Micro costs | bps costs | Median sessions to pass |
+|---|---|---|---|
+| LucidFlex 50K | 45% (CI 22–70%) | 75% (CI 48–91%) | about 125–133 |
+| LucidPro 50K | 42% | 71% | |
+
+No parameter was changed.

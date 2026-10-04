@@ -1,0 +1,77 @@
+# q22 — the frozen NQ/ES portfolio (research/PREREGISTRATION.md D-5) on a Topstep 50K Combine,
+# through the TopstepX (ProjectX) API.
+#
+#   Bots: MNQ intraday momentum (resting trail)   — only when MES confirms the breakout
+#         MES intraday momentum (30-min exits)     — only when MNQ confirms the breakout
+#   OOS 2019-26 (real micro costs): +$11.0k, Sharpe 0.51, max DD −$2.4k, worst day −$461.
+#   Label: PLAUSIBLE, not validated — start in "signals", then "assist", then "auto".
+#
+# Before running:
+#   1. Subscribe to the TopstepX API ($14.50/month with code "topstep"), create an API key.
+#   2. export Q22_PROJECTX_USER=…  Q22_PROJECTX_KEY=…   — on YOUR OWN computer (no VPS/VPN).
+#   3. q22 broker-check -c config/nq_es_topstep_50k.toml   (read-only)
+#   4. q22 run -c config/nq_es_topstep_50k.toml
+
+mode = "signals"                 # signals → assist → auto (after a week of sane signals)
+
+[account]
+rules = "topstep_50k"
+
+[guard]
+risk_per_trade_usd = 250.0
+risk_per_trade_frac = 0.0
+max_trades_per_day = 6
+max_consecutive_losses = 3
+min_seconds_between_entries = 120
+max_orders_per_minute = 20
+min_hold_seconds = 30
+min_buffer_frac = 0.25
+consistency_lock_frac = 0.8
+max_buffer_risk_frac = 0.15
+operator_heartbeat_s = 180
+news_events = []                 # add tier-1 releases (UTC)
+
+[allocator]
+regime_gating = false            # 16-year ablation: daily regime gating lowered Sharpe
+adaptive_health = false
+
+[[instrument]]
+symbol = "MNQ"
+timeframe_min = 5
+slippage_ticks = 1.0
+
+[[instrument]]
+symbol = "MES"
+timeframe_min = 5
+slippage_ticks = 1.0
+
+[[strategy]]
+id = "nb_mnq"
+kind = "noise_breakout"
+instruments = ["MNQ"]
+[strategy.params]
+exit_mode = "resting"
+peer_filter = "confirm"          # NQ/ES divergence = skip: unconfirmed breakouts lost IS & OOS
+
+[[strategy]]
+id = "nb_mes"
+kind = "noise_breakout"
+instruments = ["MES"]
+[strategy.params]
+exit_mode = "checks"
+peer_filter = "confirm"
+protect_atr = 0.5
+
+[runtime]
+broker = "projectx"
+projectx_api = "https://api.topstepx.com"
+feed = "broker"
+poll_secs = 5
+warmup_days = 60
+flatten_on_exit = true
+on_unmanaged_position = "alert"
+state_dir = "../state/topstep_nq_es"
+
+[dashboard]
+bind = "127.0.0.1:8722"
+reports_dir = "../reports"

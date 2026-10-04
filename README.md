@@ -12,11 +12,18 @@ whose outputs are committed in `results/`. Every claim in the report can be rege
 command.
 
 > **Trading system: [`q22/`](q22/README.md)** (Rust, no Python). An automated multi-strategy
-> engine for prop-firm accounts: Topstep via the TopstepX API, HyroTrader via Bybit. It
-> classifies the market regime every session, enforces each firm's rules through a compliance
-> guard, and comes with a local supervision dashboard. The same engine runs the backtest, the
-> replay demo, paper and live trading. Try it with no account:
-> `cd q22 && cargo run --release -p q22-app -- run -c config/demo_replay.toml`.
+> engine for prop-firm accounts: Topstep via the TopstepX API, **Lucid via Rithmic**, personal
+> Tradovate accounts, and HyroTrader via Bybit. It classifies the market regime every session,
+> enforces each firm's rules through a compliance guard, and comes with a local supervision
+> dashboard. The same engine runs the backtest, the replay demo, paper and live trading.
+>
+> It was researched on **16 years of Databento NQ/ES futures** with a pre-registered,
+> out-of-sample protocol:
+> * NQ/ES divergence (SMT) has no edge as a reversal signal;
+> * as a *confirmation filter* for intraday momentum, it is the core of the shipped two-bot
+>   portfolio: +$11k out-of-sample 2019–26 with real micro costs. Plausible, not proven.
+>
+> Try it with no account: `cd q22 && cargo run --release -p q22-app -- run -c config/demo_replay.toml`.
 
 ## Quick start
 

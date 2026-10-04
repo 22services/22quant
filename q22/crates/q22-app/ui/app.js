@@ -44,7 +44,14 @@
   const pct = (x, d = 0) => (x == null || !isFinite(x)) ? '—' : fmt(x * 100, d) + '%';
   const cls = (x) => x > 0 ? 'pos' : x < 0 ? 'neg' : '';
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-  const tsLabel = (t) => { const d = new Date(t); return isNaN(d) ? String(t) : d.toISOString().replace('T', ' ').slice(0, 19); };
+  // "YYYY-MM-DD HH:MM:SS" in New York time (decision log, trades) — same clock as the charts
+  const ET_PARTS = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  const tsLabel = (t) => {
+    const d = new Date(t);
+    if (isNaN(d)) return String(t);
+    const p = Object.fromEntries(ET_PARTS.formatToParts(d).map((x) => [x.type, x.value]));
+    return `${p.year}-${p.month}-${p.day} ${p.hour === '24' ? '00' : p.hour}:${p.minute}:${p.second}`;
+  };
   const STRAT_COLORS = ['--series-1', '--series-2', '--series-3', '--series-4', '--series-5'];
   const stratColor = new Map();
   function colorFor(id) { if (!stratColor.has(id)) stratColor.set(id, STRAT_COLORS[stratColor.size % STRAT_COLORS.length]); return `var(${stratColor.get(id)})`; }
@@ -72,14 +79,22 @@
   // ---------- charts
   let priceChart, candles, vwapSeries, markersApi, equityChart, equitySeries, priceLines = [];
   const LOCALE = (() => { try { new Intl.NumberFormat(navigator.language).format(1); new Date().toLocaleString(navigator.language); return navigator.language; } catch (_) { return 'en-US'; } })();
+  // Intraday times are shown in New York time — the clock CME sessions and prop rules use.
+  const etFmt = (opts) => { try { return new Intl.DateTimeFormat(LOCALE, { timeZone: 'America/New_York', ...opts }); } catch (_) { return new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', ...opts }); } };
+  const ET_HM = etFmt({ hour: '2-digit', minute: '2-digit', hour12: false });
+  const ET_DAY = etFmt({ month: 'short', day: 'numeric' });
+  const ET_FULL = etFmt({ year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
   function chartOptions() {
     return {
       autoSize: true,
-      localization: { locale: LOCALE },
+      localization: { locale: LOCALE, timeFormatter: (t) => (typeof t === 'number' ? ET_FULL.format(new Date(t * 1000)) + ' ET' : String(typeof t === 'object' ? `${t.year}-${t.month}-${t.day}` : t)) },
       layout: { background: { color: css('--surface-1') }, textColor: css('--text-secondary'), fontSize: 11, attributionLogo: true },
       grid: { vertLines: { color: css('--grid') }, horzLines: { color: css('--grid') } },
       rightPriceScale: { borderColor: css('--border') },
-      timeScale: { borderColor: css('--border'), timeVisible: true, secondsVisible: false },
+      timeScale: {
+        borderColor: css('--border'), timeVisible: true, secondsVisible: false,
+        tickMarkFormatter: (t, type) => (typeof t === 'number' ? (type <= 2 ? ET_DAY : ET_HM).format(new Date(t * 1000)) : null),
+      },
       crosshair: { mode: LWC.CrosshairMode.Normal },
     };
   }
@@ -362,11 +377,74 @@
     n.append(el('div', { class: 'muted' }, 'Sources:'), el('ul', {}, (a.sources || []).map((u) => el('li', {}, el('a', { href: u, target: '_blank', rel: 'noopener' }, u)))));
   }
 
+  // ---------- NQ ↔ ES confirmation monitor (needs ≥ 2 index instruments)
+  const div = { chart: null, series: new Map(), key: '' };
+  const SERIES_VARS = ['--series-1', '--series-2', '--series-3', '--series-4'];
+  const NOISE_WORD = { above: 'above the noise area', below: 'below the noise area', inside: 'inside the noise area' };
+  function renderDivergence(s) {
+    const insts = (s.instruments || []).filter((x) => x.session && x.session.open);
+    const card = $('divergence-card');
+    card.classList.toggle('hidden', insts.length < 2);
+    if (insts.length < 2) return;
+    // summary: both outside on the same side = confirmed, one outside alone = divergence
+    const st = insts.map((x) => (x.noise ? x.noise.state : null));
+    const [a, b] = [insts[0].symbol, insts[1].symbol];
+    let level = '', text;
+    if (st.some((x) => x == null)) text = 'Noise area warming up (needs 10 sessions of history at this time of day).';
+    else if (st[0] === st[1] && st[0] !== 'inside') { level = 'good'; text = `Confirmed ${st[0] === 'above' ? 'up' : 'down'}-breakout: ${a} and ${b} are both ${NOISE_WORD[st[0]]} — breakouts in this direction can be taken.`; }
+    else if (st[0] === 'inside' && st[1] === 'inside') text = `${a} and ${b} are both inside their noise area — no signal.`;
+    else if (st[0] !== 'inside' && st[1] !== 'inside') { level = 'warning'; text = `Opposite breakouts (${a} ${st[0]}, ${b} ${st[1]}) — no trade.`; }
+    else { level = 'warning'; const lead = st[0] !== 'inside' ? 0 : 1; text = `Divergence: ${insts[lead].symbol} is ${NOISE_WORD[st[lead]]} but ${insts[1 - lead].symbol} is not — ${insts[lead].symbol}'s breakout is skipped (unconfirmed breakouts lost money in the 2010–2026 tests).`; }
+    const sum = $('div-summary'); sum.textContent = '';
+    sum.append(el('span', { class: 'pill ' + level }, el('span', { class: 'dot' }), el('span', {}, level === 'good' ? 'confirmed' : level === 'warning' ? 'divergent' : 'no signal')), ' ', text);
+    // table
+    const t = el('table');
+    t.append(el('thead', {}, el('tr', {}, ['index', 'since open', 'vs noise area', 'band (low – high)', 'vs VWAP'].map((h, i) => el('th', { class: i === 1 ? 'num' : '' }, h)))));
+    const tb = el('tbody');
+    insts.forEach((x, i) => {
+      const px = x.last_price, o = x.session.open;
+      const ch = px != null && o ? (px / o - 1) : null;
+      const vw = x.session.vwap;
+      tb.append(el('tr', {},
+        el('td', {}, el('span', { class: 'chip' }, el('i', { style: `background:var(${SERIES_VARS[i % SERIES_VARS.length]})` }), x.symbol)),
+        el('td', { class: 'num ' + cls(ch) }, ch == null ? '—' : (ch >= 0 ? '+' : '') + fmt(ch * 100, 2) + '%'),
+        el('td', {}, x.noise ? NOISE_WORD[x.noise.state] : '—'),
+        el('td', {}, x.noise ? `${fmt(x.noise.lower, 2)} – ${fmt(x.noise.upper, 2)}` : '—'),
+        el('td', {}, vw == null || px == null ? '—' : px >= vw ? 'above' : 'below')));
+    });
+    t.append(tb);
+    const box = $('div-table'); box.textContent = ''; box.append(el('div', { class: 'tablewrap' }, t));
+    // chart: % move since the session open, one line per index (legend + direct colours)
+    if (!div.chart) {
+      div.chart = LWC.createChart($('div-chart'), chartOptions());
+      div.chart.subscribeCrosshairMove((p) => {
+        const lg = $('div-legend'); lg.textContent = '';
+        if (!p || !p.seriesData) return;
+        for (const [sym, ser] of div.series) { const d = p.seriesData.get(ser); if (d) lg.append(sym + ' ', el('b', {}, (d.value >= 0 ? '+' : '') + fmt(d.value, 2) + '%'), '   '); }
+      });
+    }
+    const keys = $('div-keys');
+    if (keys.childElementCount !== insts.length) {
+      keys.textContent = '';
+      insts.forEach((x, i) => keys.append(el('span', { class: 'key' }, el('i', { style: `background:var(${SERIES_VARS[i % SERIES_VARS.length]})` }), x.symbol)));
+    }
+    insts.forEach((x, i) => {
+      let ser = div.series.get(x.symbol);
+      if (!ser) { ser = div.chart.addSeries(LWC.LineSeries, { color: css(SERIES_VARS[i % SERIES_VARS.length]), lineWidth: 2, priceLineVisible: false, priceFormat: { type: 'custom', formatter: (v) => fmt(v, 2) + '%' } }); div.series.set(x.symbol, ser); }
+      const n = Math.max(0, x.session.bars || 0);
+      const bars = (x.bars || []).slice(-n);
+      ser.setData(bars.map((r) => ({ time: r[0], value: (r[4] / x.session.open - 1) * 100 })));
+    });
+    const key = insts.map((x) => `${x.symbol}:${x.session.date}:${x.session.bars}`).join('|');
+    if (key !== div.key) { div.key = key; div.chart.timeScale().fitContent(); }
+  }
+
   function render(s) {
     state = s;
     if (!s.account) return;
     renderHeader(s);
     renderKpis(s);
+    renderDivergence(s);
     const inst = currentInstrument(s);
     if (inst) { renderChart(s, inst); renderPosition(inst); renderRegime(inst); renderStrategies(inst); }
     renderApprovals(s);

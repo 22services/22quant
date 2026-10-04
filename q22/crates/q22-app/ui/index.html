@@ -43,8 +43,16 @@
           </div>
           <div class="chart" id="price-chart"><div class="legend" id="price-legend"></div></div>
         </div>
+        <div class="card hidden" id="divergence-card">
+          <h2>NQ ↔ ES confirmation <span class="muted">a breakout is taken only if the other index confirms it</span></h2>
+          <div id="div-summary" class="div-summary"></div>
+          <div id="div-table"></div>
+          <div id="div-keys" style="margin-top:8px"></div>
+          <div class="chart small" id="div-chart"><div class="legend" id="div-legend"></div></div>
+          <div class="muted" style="font-size:12px">% move since today's 09:30 ET open (times in New York time). The noise area is each index's usual move by this time of day (14-session average): outside it = breakout.</div>
+        </div>
         <div class="card">
-          <h2>Decision log <span class="muted">every entry, block and exit with its reason</span></h2>
+          <h2>Decision log <span class="muted">every entry, block and exit with its reason · New York time</span></h2>
           <div class="filters">
             <label>Show <select id="log-filter">
               <option value="all">all</option>

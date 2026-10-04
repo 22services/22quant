@@ -28,3 +28,8 @@ tracing-subscriber.workspace = true
 futures.workspace = true
 rand.workspace = true
 reqwest.workspace = true
+
+[features]
+default = ["rithmic"]
+# Rithmic R|Protocol support (Lucid). On Linux it needs OpenSSL headers; `--no-default-features` leaves it out.
+rithmic = ["q22-broker/rithmic"]
