@@ -1,0 +1,56 @@
+# FROZEN 2026-10-04 (PREREGISTRATION.md D-5): portfolio P3 at $250 risk — contract cost model. Do not edit.
+mode = "auto"
+
+[account]
+rules = "topstep_50k"
+
+[guard]
+risk_per_trade_usd = 250.0
+risk_per_trade_frac = 0.0
+entry_start_et = "09:35"
+entry_end_et = "15:45"
+flatten_at_et = "15:58"
+max_trades_per_day = 6
+max_consecutive_losses = 3
+min_seconds_between_entries = 120
+max_orders_per_minute = 20
+min_hold_seconds = 30
+min_buffer_frac = 0.25
+consistency_lock_frac = 0.8
+max_buffer_risk_frac = 0.15
+
+[allocator]
+regime_gating = false
+adaptive_health = false
+
+[[instrument]]
+symbol = "MNQ"
+timeframe_min = 5
+slippage_ticks = 1.0
+[instrument.spec_overrides]
+commission_per_side = 0.75
+
+[[instrument]]
+symbol = "MES"
+timeframe_min = 5
+slippage_ticks = 1.0
+[instrument.spec_overrides]
+commission_per_side = 0.75
+
+[[strategy]]
+id = "nb_mnq"
+kind = "noise_breakout"
+instruments = ["MNQ"]
+[strategy.params]
+exit_mode = "resting"
+peer_filter = "confirm"
+protect_atr = 0.5
+
+[[strategy]]
+id = "nb_mes"
+kind = "noise_breakout"
+instruments = ["MES"]
+[strategy.params]
+exit_mode = "checks"
+peer_filter = "confirm"
+protect_atr = 0.5

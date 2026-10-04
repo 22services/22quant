@@ -17,7 +17,7 @@ use crate::market::MarketState;
 use crate::prop::{AccountStatus, PropTracker};
 use crate::regime::Regime;
 use crate::strategies;
-use crate::strategy::{EntrySignal, Manage, OpenPosition, Strategy, StrategyCtx};
+use crate::strategy::{EntrySignal, Manage, OpenPosition, PeerRef, Strategy, StrategyCtx};
 
 /// Orders the engine wants executed. Prices are absolute.
 #[derive(Clone, Debug, Serialize)]
@@ -266,16 +266,35 @@ impl Engine {
     }
 
     /// Feed one **completed** bar. Returns the commands to execute.
+    ///
+    /// With several instruments, prefer [`Engine::on_bars`] with every bar of the same
+    /// timestamp, so cross-asset strategies see their peers at that same timestamp.
     pub fn on_bar(&mut self, symbol: &str, bar: &Bar) -> Vec<Command> {
-        let Some(i) = self.instrument_index(symbol) else { return vec![] };
+        self.ingest(symbol, bar);
+        self.decide(symbol, bar)
+    }
+
+    /// Feed all bars that closed at the same time: every market is updated first, then each
+    /// instrument decides (in the given order).
+    pub fn on_bars(&mut self, bars: &[(&str, Bar)]) -> Vec<Command> {
+        for (s, b) in bars {
+            self.ingest(s, b);
+        }
         let mut cmds = vec![];
+        for (s, b) in bars {
+            cmds.extend(self.decide(s, b));
+        }
+        cmds
+    }
+
+    /// Phase 1: market state, session hooks, position excursion bookkeeping.
+    pub fn ingest(&mut self, symbol: &str, bar: &Bar) {
+        let Some(i) = self.instrument_index(symbol) else { return };
         let mut evs = vec![];
         let (kind, tf) = (self.instruments[i].spec.kind, self.instruments[i].tf_minutes);
         let bar_end = bar.ts + Duration::minutes(tf);
         let day = trading_day(kind, bar.ts);
         self.roll_day(day, bar.ts);
-
-        // 1. market state & session hooks
         {
             let InstrumentRt { market, strategies, spec, position, last_price, last_bar_end, .. } = &mut self.instruments[i];
             *last_price = bar.close;
@@ -300,6 +319,17 @@ impl Engine {
                 }
             }
         }
+        self.push_events(evs);
+    }
+
+    /// Phase 2: account mark, guard actions, position management and new entries.
+    pub fn decide(&mut self, symbol: &str, bar: &Bar) -> Vec<Command> {
+        let Some(i) = self.instrument_index(symbol) else { return vec![] };
+        let mut cmds = vec![];
+        let mut evs = vec![];
+        let (kind, tf) = (self.instruments[i].spec.kind, self.instruments[i].tf_minutes);
+        let bar_end = bar.ts + Duration::minutes(tf);
+        let day = trading_day(kind, bar.ts);
 
         // 2. account mark & firm rules
         let open = self.open_pnl_total();
@@ -336,11 +366,14 @@ impl Engine {
         let now = bar_end;
         let regime = self.instruments[i].market.regime;
         if self.instruments[i].position.is_some() && !self.instruments[i].exit_requested {
-            let InstrumentRt { market, strategies, spec, position, exit_requested, .. } = &mut self.instruments[i];
+            let (before, rest) = self.instruments.split_at_mut(i);
+            let (cur, after) = rest.split_first_mut().expect("instrument index in range");
+            let peers: Vec<PeerRef> = before.iter().chain(after.iter()).map(|r| PeerRef { symbol: &r.spec.symbol, m: &r.market, last_close: r.last_price }).collect();
+            let InstrumentRt { market, strategies, spec, position, exit_requested, .. } = cur;
             let pos = position.clone().unwrap();
             let offset = market.offset_end(bar);
             if let Some(s) = strategies.iter_mut().find(|s| s.id() == pos.strategy) {
-                let ctx = StrategyCtx { symbol: &spec.symbol, spec, bar, bar_end, m: market, regime, offset };
+                let ctx = StrategyCtx { symbol: &spec.symbol, spec, bar, bar_end, m: market, regime, offset, peers: &peers };
                 match s.manage(&ctx, &pos) {
                     Manage::Hold => {}
                     Manage::MoveStop(px) => {
@@ -379,11 +412,14 @@ impl Engine {
     }
 
     fn try_entry(&mut self, i: usize, bar: &Bar, bar_end: DateTime<Utc>, regime: Regime, day: NaiveDate, evs: &mut Vec<EngineEvent>) -> Option<Command> {
-        let InstrumentRt { market, strategies, spec, pending, .. } = &mut self.instruments[i];
+        let (before, rest) = self.instruments.split_at_mut(i);
+        let (cur, after) = rest.split_first_mut().expect("instrument index in range");
+        let peers: Vec<PeerRef> = before.iter().chain(after.iter()).map(|r| PeerRef { symbol: &r.spec.symbol, m: &r.market, last_close: r.last_price }).collect();
+        let InstrumentRt { market, strategies, spec, pending, .. } = cur;
         let offset = market.offset_end(bar);
         let mut signals: Vec<(String, f64, EntrySignal, bool)> = vec![];
         for s in strategies.iter_mut() {
-            let ctx = StrategyCtx { symbol: &spec.symbol, spec, bar, bar_end, m: market, regime, offset };
+            let ctx = StrategyCtx { symbol: &spec.symbol, spec, bar, bar_end, m: market, regime, offset, peers: &peers };
             if let Some(sig) = s.entry(&ctx) {
                 let valid = match sig.side {
                     Side::Long => sig.stop < bar.close,

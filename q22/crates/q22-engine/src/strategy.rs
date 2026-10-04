@@ -60,6 +60,14 @@ pub enum Manage {
     Exit(String),
 }
 
+/// Read-only view of another configured instrument, updated with the **same** timestamp as
+/// the bar being decided (the engine ingests every bar of a timestamp before any decision).
+pub struct PeerRef<'a> {
+    pub symbol: &'a str,
+    pub m: &'a MarketState,
+    pub last_close: f64,
+}
+
 pub struct StrategyCtx<'a> {
     pub symbol: &'a str,
     pub spec: &'a InstrumentSpec,
@@ -69,6 +77,18 @@ pub struct StrategyCtx<'a> {
     pub regime: Regime,
     /// Minutes from the session open to the end of this bar.
     pub offset: i64,
+    /// The other instruments (cross-asset strategies: confirmation, divergence, lead–lag).
+    pub peers: &'a [PeerRef<'a>],
+}
+
+impl StrategyCtx<'_> {
+    /// The named peer, or the first one when `symbol` is None.
+    pub fn peer(&self, symbol: Option<&str>) -> Option<&PeerRef<'_>> {
+        match symbol {
+            Some(s) => self.peers.iter().find(|p| p.symbol.eq_ignore_ascii_case(s)),
+            None => self.peers.first(),
+        }
+    }
 }
 
 pub trait Strategy: Send {

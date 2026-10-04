@@ -6,9 +6,17 @@
 //! band goes short. The stop trails at max(upper band, VWAP) for longs (min(lower, VWAP) for
 //! shorts), updated at each check; positions are closed before the session end.
 //!
-//! Deviation from the paper (deliberate, for prop accounts): the trailing level rests as a
-//! real stop order (intrabar protection) instead of being checked only every 30 minutes, and
-//! a minimum stop distance of `min_stop_atr` × bar-ATR avoids microscopic stops.
+//! Exit modes (`exit_mode`):
+//! * `"resting"` (default, the original q22 variant): the trailing level rests as a real stop
+//!   order, with a minimum distance of `min_stop_atr` × bar-ATR;
+//! * `"checks"` (the paper's rule): the position is closed only when a 30-minute check closes
+//!   back inside the trail; a wide protective stop at `protect_atr` × daily ATR rests at the
+//!   exchange (prop firms want a stop on every position) and sizes the trade.
+//!
+//! Cross-index filter (`peer_filter`, needs a second instrument such as MNQ + MES):
+//! * `"confirm"` — take a breakout only if the peer is outside its own noise area on the same
+//!   side at the same check;
+//! * `"diverge"` — only if it is not (for measurement; the SMT idea says these should fail).
 
 use anyhow::Result;
 use serde_json::{json, Map, Value};
@@ -29,6 +37,26 @@ pub struct NoiseBreakout {
     max_trades_per_day: usize,
     trades_today: usize,
     last_bands: Option<(f64, f64)>,
+    checks_exit: bool,
+    protect_atr: f64,
+    peer_filter: PeerFilter,
+    peer: Option<String>,
+    last_peer: Option<String>,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum PeerFilter {
+    None,
+    Confirm,
+    Diverge,
+}
+
+/// Noise-area bands of any market state at `offset`.
+fn bands_of(m: &crate::market::MarketState, offset: i64, band_mult: f64) -> Option<(f64, f64)> {
+    let s = m.session.as_ref()?;
+    let sigma = m.noise_sigma(offset)? * band_mult;
+    let pc = s.prev_close.unwrap_or(s.open);
+    Some((s.open.max(pc) * (1.0 + sigma), s.open.min(pc) * (1.0 - sigma)))
 }
 
 impl NoiseBreakout {
@@ -43,14 +71,32 @@ impl NoiseBreakout {
             max_trades_per_day: param(p, "max_trades_per_day", 3.0) as usize,
             trades_today: 0,
             last_bands: None,
+            checks_exit: match p.get("exit_mode").and_then(|v| v.as_str()).unwrap_or("resting") {
+                "resting" => false,
+                "checks" => true,
+                x => anyhow::bail!("noise_breakout exit_mode must be resting|checks, got {x}"),
+            },
+            protect_atr: param(p, "protect_atr", 0.5),
+            peer_filter: match p.get("peer_filter").and_then(|v| v.as_str()).unwrap_or("none") {
+                "none" => PeerFilter::None,
+                "confirm" => PeerFilter::Confirm,
+                "diverge" => PeerFilter::Diverge,
+                x => anyhow::bail!("noise_breakout peer_filter must be none|confirm|diverge, got {x}"),
+            },
+            peer: p.get("peer").and_then(|v| v.as_str()).map(String::from),
+            last_peer: None,
         })
     }
 
     fn bands(&self, ctx: &StrategyCtx) -> Option<(f64, f64)> {
-        let s = ctx.m.session.as_ref()?;
-        let sigma = ctx.m.noise_sigma(ctx.offset)? * self.band_mult;
-        let pc = s.prev_close.unwrap_or(s.open);
-        Some((s.open.max(pc) * (1.0 + sigma), s.open.min(pc) * (1.0 - sigma)))
+        bands_of(ctx.m, ctx.offset, self.band_mult)
+    }
+
+    /// Is the peer outside its own noise area on the side of `long`? None = no peer data.
+    fn peer_outside(&self, ctx: &StrategyCtx, long: bool) -> Option<bool> {
+        let peer = ctx.peer(self.peer.as_deref())?;
+        let (ub, lb) = bands_of(peer.m, ctx.offset, self.band_mult)?;
+        Some(if long { peer.last_close > ub } else { peer.last_close < lb })
     }
 
     fn is_check(&self, offset: i64) -> bool {
@@ -90,22 +136,34 @@ impl Strategy for NoiseBreakout {
         let atr = ctx.m.atr_bar.value()?;
         let c = ctx.bar.close;
         let min_d = self.min_stop_atr * atr;
+        let protect = ctx.m.features.atr_d.map(|a| self.protect_atr * a);
         let sig = if c > ub {
-            let stop = ub.max(vwap).min(c - min_d);
+            let stop = if self.checks_exit { c - protect? } else { ub.max(vwap).min(c - min_d) };
             Some((Side::Long, stop, (c - ub) / (ub - lb).max(1e-9)))
         } else if c < lb {
-            let stop = lb.min(vwap).max(c + min_d);
+            let stop = if self.checks_exit { c + protect? } else { lb.min(vwap).max(c + min_d) };
             Some((Side::Short, stop, (lb - c) / (ub - lb).max(1e-9)))
         } else {
             None
         }?;
+        let mut note = String::new();
+        if self.peer_filter != PeerFilter::None {
+            let outside = self.peer_outside(ctx, sig.0 == Side::Long)?;
+            let want = self.peer_filter == PeerFilter::Confirm;
+            let peer = ctx.peer(self.peer.as_deref()).map(|p| p.symbol.to_string()).unwrap_or_default();
+            self.last_peer = Some(format!("{peer} {}", if outside { "confirms" } else { "diverges" }));
+            if outside != want {
+                return None;
+            }
+            note = format!("; {peer} {}", if outside { "confirms" } else { "diverges" });
+        }
         self.trades_today += 1;
         Some(EntrySignal {
             side: sig.0,
             stop: sig.1,
             target: None,
             confidence: (0.6 + sig.2).min(1.0),
-            reason: format!("close {c:.2} outside noise area [{lb:.2}, {ub:.2}] at +{}m", ctx.offset),
+            reason: format!("close {c:.2} outside noise area [{lb:.2}, {ub:.2}] at +{}m{note}", ctx.offset),
             max_notional_frac: None,
         })
     }
@@ -123,6 +181,8 @@ impl Strategy for NoiseBreakout {
                 let trail = ub.max(vwap);
                 if c < trail {
                     Manage::Exit(format!("close {c:.2} back below trail {trail:.2}"))
+                } else if self.checks_exit {
+                    Manage::Hold
                 } else if trail > pos.stop {
                     Manage::MoveStop(trail)
                 } else {
@@ -133,6 +193,8 @@ impl Strategy for NoiseBreakout {
                 let trail = lb.min(vwap);
                 if c > trail {
                     Manage::Exit(format!("close {c:.2} back above trail {trail:.2}"))
+                } else if self.checks_exit {
+                    Manage::Hold
                 } else if trail < pos.stop {
                     Manage::MoveStop(trail)
                 } else {
@@ -142,6 +204,6 @@ impl Strategy for NoiseBreakout {
         }
     }
     fn status(&self) -> Value {
-        json!({"upper_band": self.last_bands.map(|b| b.0), "lower_band": self.last_bands.map(|b| b.1), "trades_today": self.trades_today})
+        json!({"upper_band": self.last_bands.map(|b| b.0), "lower_band": self.last_bands.map(|b| b.1), "trades_today": self.trades_today, "exit_mode": if self.checks_exit { "checks" } else { "resting" }, "peer": self.last_peer})
     }
 }

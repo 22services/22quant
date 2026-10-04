@@ -13,6 +13,7 @@ path = "src/main.rs"
 q22-core.workspace = true
 q22-engine.workspace = true
 q22-broker.workspace = true
+q22-research.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true

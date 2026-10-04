@@ -70,6 +70,8 @@ pub struct Runner {
     flatten_on_exit: bool,
     killed: bool,
     trades_logged: usize,
+    /// Polled bars waiting for the other instruments' bar of the same timestamp.
+    held: Vec<(String, Bar)>,
 }
 
 async fn make_broker(cfg: &AppConfig) -> Result<Arc<dyn Broker>> {
@@ -128,16 +130,21 @@ impl Runner {
                 let mut tf = HashMap::new();
                 let mut bsym = HashMap::new();
                 eng.paused = true; // warm-up: indicators only, no orders
+                let mut merged: Vec<(String, Bar)> = vec![];
                 for ic in &cfg.engine.instruments {
                     let b = ic.broker_symbol.clone().unwrap_or_else(|| ic.symbol.clone());
                     let hist = src.bars(&b, ic.timeframe_min, warmup_since).await.with_context(|| format!("warm-up bars for {}", ic.symbol))?;
                     tracing::info!("warm-up {}: {} bars", ic.symbol, hist.len());
-                    for bar in &hist {
-                        let _ = eng.on_bar(&ic.symbol, bar);
-                    }
                     last.insert(ic.symbol.clone(), hist.last().map(|b| b.ts).unwrap_or(warmup_since));
                     tf.insert(ic.symbol.clone(), ic.timeframe_min);
                     bsym.insert(ic.symbol.clone(), b);
+                    merged.extend(hist.into_iter().map(|bar| (ic.symbol.clone(), bar)));
+                }
+                // time-ordered, same-timestamp bars together (sessions roll once, peers stay in step)
+                merged.sort_by_key(|(s, b)| (b.ts, s.clone()));
+                for group in merged.chunk_by(|a, b| a.1.ts == b.1.ts) {
+                    let g: Vec<(&str, Bar)> = group.iter().map(|(s, b)| (s.as_str(), *b)).collect();
+                    let _ = eng.on_bars(&g);
                 }
                 eng.paused = false;
                 Feed::Poll { src, last, tf, bsym }
@@ -173,6 +180,7 @@ impl Runner {
             flatten_on_exit: cfg.runtime.flatten_on_exit,
             killed: false,
             trades_logged: 0,
+            held: vec![],
         })
     }
 
@@ -371,15 +379,39 @@ impl Runner {
                             Err(e) => tracing::warn!("bars {sym}: {e:#}"),
                         }
                     }
-                    new_bars.sort_by_key(|(s, b)| (b.ts, s.clone()));
+                    // Cross-asset strategies must see every instrument at the same timestamp:
+                    // hold a timestamp until all instruments delivered it (or 20 s after the bar
+                    // closed, so one stalled feed cannot freeze the other).
+                    self.held.append(&mut new_bars);
+                    self.held.sort_by_key(|(s, b)| (b.ts, s.clone()));
+                    let n_inst = last.len();
+                    let now = Utc::now();
+                    let mut release = 0;
+                    for group in self.held.chunk_by(|a, b| a.1.ts == b.1.ts) {
+                        let ts = group[0].1.ts;
+                        let closed_for = now - (ts + Duration::minutes(tf.get(&group[0].0).copied().unwrap_or(1)));
+                        if group.len() >= n_inst || closed_for > Duration::seconds(20) {
+                            release += group.len();
+                        } else {
+                            break;
+                        }
+                    }
+                    new_bars = self.held.drain(..release).collect();
                 }
             }
-            for (sym, bar) in &new_bars {
+            for group in new_bars.chunk_by(|a, b| a.1.ts == b.1.ts) {
                 if let Exec::Sim(sim) = &mut self.exec {
-                    sim.on_bar_open(&mut self.eng, sym, bar);
+                    for (sym, bar) in group {
+                        sim.on_bar_open(&mut self.eng, sym, bar);
+                    }
                 }
-                let cmds = self.eng.on_bar(sym, bar);
-                self.execute(Some(bar), cmds).await;
+                for (sym, bar) in group {
+                    self.eng.ingest(sym, bar);
+                }
+                for (sym, bar) in group {
+                    let cmds = self.eng.decide(sym, bar);
+                    self.execute(Some(bar), cmds).await;
+                }
             }
             // ---- live housekeeping
             if matches!(self.exec, Exec::Live(_)) {

@@ -988,6 +988,7 @@ dependencies = [
  "q22-broker",
  "q22-core",
  "q22-engine",
+ "q22-research",
  "rand 0.8.8",
  "reqwest",
  "serde",
@@ -1029,6 +1030,19 @@ dependencies = [
 
 [[package]]
 name = "q22-engine"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "chrono-tz",
+ "q22-core",
+ "rand 0.8.8",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "q22-research"
 version = "0.1.0"
 dependencies = [
  "anyhow",

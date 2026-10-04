@@ -1,0 +1,15 @@
+[package]
+name = "q22-research"
+description = "Event-study harness for cross-asset (NQ/ES) hypotheses: aligned minute data, trade simulation with costs, null models."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+chrono-tz.workspace = true
+rand.workspace = true
+q22-core.workspace = true

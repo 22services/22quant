@@ -1,0 +1,47 @@
+# q22 research template — rendered by research/run_is_matrix.sh (placeholders in @@…@@).
+mode = "auto"
+
+[account]
+rules = "topstep_50k"
+
+[guard]
+risk_per_trade_usd = @@RISK@@
+risk_per_trade_frac = 0.0
+entry_start_et = "09:35"
+entry_end_et = "15:45"
+flatten_at_et = "15:58"
+max_trades_per_day = 6
+max_consecutive_losses = 3
+min_seconds_between_entries = 120
+max_orders_per_minute = 20
+min_hold_seconds = 30
+min_buffer_frac = 0.25
+consistency_lock_frac = 0.8
+max_buffer_risk_frac = 0.15
+
+[allocator]
+regime_gating = false
+adaptive_health = false
+
+[[instrument]]
+symbol = "MNQ"
+timeframe_min = 5
+slippage_ticks = @@SLIP@@
+[instrument.spec_overrides]
+@@MNQ_COST@@
+
+[[instrument]]
+symbol = "MES"
+timeframe_min = 5
+slippage_ticks = @@SLIP@@
+[instrument.spec_overrides]
+@@MES_COST@@
+
+[[strategy]]
+id = "nb_@@SYM_LC@@"
+kind = "noise_breakout"
+instruments = ["@@SYM@@"]
+[strategy.params]
+exit_mode = "@@EXIT@@"
+peer_filter = "@@PEER@@"
+protect_atr = 0.5

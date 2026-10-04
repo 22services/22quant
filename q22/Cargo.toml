@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/q22-core", "crates/q22-engine", "crates/q22-broker", "crates/q22-app"]
+members = ["crates/q22-core", "crates/q22-engine", "crates/q22-broker", "crates/q22-research", "crates/q22-app"]
 
 [workspace.package]
 version = "0.1.0"
@@ -33,6 +33,7 @@ async-trait = "0.1"
 q22-core = { path = "crates/q22-core" }
 q22-engine = { path = "crates/q22-engine" }
 q22-broker = { path = "crates/q22-broker" }
+q22-research = { path = "crates/q22-research" }
 
 [profile.release]
 opt-level = 3

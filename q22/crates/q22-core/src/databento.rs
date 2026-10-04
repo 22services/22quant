@@ -29,6 +29,8 @@ pub struct Roll {
     pub to: String,
     /// new − old, measured at `at`.
     pub gap: f64,
+    /// new ÷ old, measured at `at`.
+    pub ratio: f64,
     pub at: DateTime<Utc>,
 }
 
@@ -36,8 +38,8 @@ pub struct Roll {
 pub struct ContinuousBar {
     pub bar: Bar,
     pub contract: String,
-    /// Back-adjustment added to this bar (raw contract price = adjusted − offset).
-    pub offset: f64,
+    /// Panama: points added (raw = adjusted − adj). Ratio: factor applied (raw = adjusted ÷ adj).
+    pub adj: f64,
 }
 
 #[derive(Debug, Default)]
@@ -124,7 +126,17 @@ pub fn read_contracts(reader: impl BufRead, root: &str) -> Result<(HashMap<Strin
 }
 
 /// Build the continuous series. Returns the bars (with the contract each came from) and the rolls.
-pub fn build_continuous(contracts: &HashMap<String, Vec<Bar>>) -> Result<(Vec<ContinuousBar>, Vec<Roll>, usize)> {
+/// How rolls are stitched.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Adjust {
+    /// Add the roll gap to earlier bars: exact point (dollar) P&L, distorted percentages far back.
+    Panama,
+    /// Multiply earlier bars by the roll ratio: exact percentage moves, prices proportional to the
+    /// traded contracts (use with costs in basis points for long-history research).
+    Ratio,
+}
+
+pub fn build_continuous(contracts: &HashMap<String, Vec<Bar>>, mode: Adjust) -> Result<(Vec<ContinuousBar>, Vec<Roll>, usize)> {
     let kind = MarketKind::CmeEquityIndex;
     // expiry order from canonical names (ESM2020 → (2020, 6))
     let mut expiry: HashMap<&str, (i32, u32)> = HashMap::new();
@@ -167,23 +179,24 @@ pub fn build_continuous(contracts: &HashMap<String, Vec<Bar>>) -> Result<(Vec<Co
             let old = &contracts[current][a0..a1];
             let new = &contracts[next][b0..b1];
             let new_at: HashMap<DateTime<Utc>, f64> = new.iter().map(|b| (b.ts, b.close)).collect();
-            let common = old.iter().rev().find_map(|b| new_at.get(&b.ts).map(|nc| (b.ts, *nc - b.close)));
-            let (at, gap) = match common {
+            let common = old.iter().rev().find_map(|b| new_at.get(&b.ts).map(|nc| (b.ts, *nc - b.close, *nc / b.close)));
+            let (at, gap, ratio) = match common {
                 Some(x) => x,
                 None => match (old.last(), new.last()) {
-                    (Some(o), Some(n)) => (o.ts.max(n.ts), n.close - o.close),
+                    (Some(o), Some(n)) => (o.ts.max(n.ts), n.close - o.close, n.close / o.close),
                     _ => return Err(anyhow!("roll {current}→{next} on {day}: no overlapping bars on {prev}")),
                 },
             };
-            rolls.push(Roll { day, from: current.to_string(), to: next.to_string(), gap, at });
+            rolls.push(Roll { day, from: current.to_string(), to: next.to_string(), gap, ratio, at });
             current = next;
             segments.push((day, current));
         }
     }
-    // offsets: segment k is shifted by the sum of the gaps of every later roll
-    let mut offsets = vec![0.0; segments.len()];
+    // segment k: Panama adds the sum of every later gap, Ratio multiplies by every later ratio
+    let panama = mode == Adjust::Panama;
+    let mut offsets = vec![if panama { 0.0 } else { 1.0 }; segments.len()];
     for k in (0..segments.len().saturating_sub(1)).rev() {
-        offsets[k] = offsets[k + 1] + rolls[k].gap;
+        offsets[k] = if panama { offsets[k + 1] + rolls[k].gap } else { offsets[k + 1] * rolls[k].ratio };
     }
     let mut out = Vec::new();
     let mut seg = 0;
@@ -197,19 +210,20 @@ pub fn build_continuous(contracts: &HashMap<String, Vec<Bar>>) -> Result<(Vec<Co
             sessions += 1;
             let off = offsets[seg];
             for bar in &contracts[sym][a..b] {
-                out.push(ContinuousBar { bar: Bar { ts: bar.ts, open: bar.open + off, high: bar.high + off, low: bar.low + off, close: bar.close + off, volume: bar.volume }, contract: sym.to_string(), offset: off });
+                let f = |x: f64| if panama { x + off } else { x * off };
+                out.push(ContinuousBar { bar: Bar { ts: bar.ts, open: f(bar.open), high: f(bar.high), low: f(bar.low), close: f(bar.close), volume: bar.volume }, contract: sym.to_string(), adj: off });
             }
         }
     }
     Ok((out, rolls, sessions))
 }
 
-/// `unix_timestamp,open,high,low,close,volume,contract,offset` — readable by [`crate::data::parse_bars`].
-pub fn write_continuous(w: &mut impl Write, bars: &[ContinuousBar]) -> Result<()> {
-    writeln!(w, "unix_timestamp,open,high,low,close,volume,contract,offset")?;
+/// `unix_timestamp,open,high,low,close,volume,contract,offset|factor` — readable by [`crate::data::parse_bars`].
+pub fn write_continuous(w: &mut impl Write, bars: &[ContinuousBar], mode: Adjust) -> Result<()> {
+    writeln!(w, "unix_timestamp,open,high,low,close,volume,contract,{}", if mode == Adjust::Panama { "offset" } else { "factor" })?;
     for cb in bars {
         let b = &cb.bar;
-        writeln!(w, "{},{},{},{},{},{},{},{}", b.ts.timestamp(), b.open, b.high, b.low, b.close, b.volume, cb.contract, cb.offset)?;
+        writeln!(w, "{},{},{},{},{},{},{},{}", b.ts.timestamp(), b.open, b.high, b.low, b.close, b.volume, cb.contract, cb.adj)?;
     }
     Ok(())
 }
@@ -251,7 +265,11 @@ mod tests {
         // make the old contract expire later in the year than its data ends? (June = M)
         c.insert("ESM2026".into(), old);
         c.insert("ESU2026".into(), new);
-        let (out, rolls, sessions) = build_continuous(&c).unwrap();
+        let (out, rolls, sessions) = build_continuous(&c, Adjust::Panama).unwrap();
+        let (outr, _, _) = build_continuous(&c, Adjust::Ratio).unwrap();
+        // ratio: earlier bars × 105/101, the latest segment untouched
+        assert!((outr[10].bar.close - 105.0).abs() < 1e-9 && (outr[20].bar.close - 106.0).abs() < 1e-9);
+        assert!((outr[0].bar.close - 100.0 * 105.0 / 101.0).abs() < 1e-9 && (outr[0].adj - 105.0 / 101.0).abs() < 1e-12);
         assert_eq!(sessions, 3);
         assert_eq!(rolls.len(), 1);
         assert_eq!(rolls[0].day, trading_day(MarketKind::CmeEquityIndex, d3), "roll uses the previous session's volume");

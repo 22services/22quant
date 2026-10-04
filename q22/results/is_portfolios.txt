@@ -1,0 +1,132 @@
+IS_P1_r150.0_bps
+   net $9,030 (gross $12,407, costs $3,378) | trades 2555 | win 35.9% | PF 1.17 | avg +0.037R | expectancy $4/trade
+   days 2199 (with trades 1244) | daily Sharpe 0.65 ann | PSR(>0) 0.980 | DSR 0.980 (1 trials, benchmark SR 0.00) | MinTRL 1398 days
+   max drawdown -$2,029 | best day $1,201 | worst day -$349 | net / max-loss 4.51
+   strategy           trades   win%      PF    avg R         net
+   nb_mes                867  36.1%    1.19   +0.042      $3,828
+   nb_mnq               1688  35.8%    1.16   +0.035      $5,202
+   === IS_P1_r150.0_bps — rolling-start evaluations under topstep_50k ===
+   431 evaluations (one every 5 sessions) → 151 passed, 176 failed, 104 open
+   pass rate 46%  (95% CI 17–78% on ≈6 independent attempts — runs overlap)
+   sessions to pass: median 373 (IQR 237–463) | sessions to fail: median 255 (IQR 145–435)
+IS_P1_r150.0_contract
+   net -$3,059 (gross $4,834, costs $7,893) | trades 2619 | win 31.8% | PF 0.95 | avg -0.015R | expectancy -$1/trade
+   days 2199 (with trades 1267) | daily Sharpe -0.23 ann | PSR(>0) 0.257 | DSR 0.257 (1 trials, benchmark SR 0.00) | MinTRL inf days
+   max drawdown -$6,576 | best day $1,022 | worst day -$430 | net / max-loss -1.53
+   strategy           trades   win%      PF    avg R         net
+   nb_mes                876  31.6%    0.95   -0.017     -$1,051
+   nb_mnq               1743  31.8%    0.95   -0.014     -$2,008
+   === IS_P1_r150.0_contract — rolling-start evaluations under topstep_50k ===
+   431 evaluations (one every 5 sessions) → 29 passed, 330 failed, 72 open
+   pass rate 8%  (95% CI 1–39% on ≈10 independent attempts — runs overlap)
+   sessions to pass: median 300 (IQR 241–385) | sessions to fail: median 192 (IQR 126–285)
+IS_P1_r250.0_bps
+   net $12,386 (gross $17,124, costs $4,738) | trades 2646 | win 36.0% | PF 1.16 | avg +0.045R | expectancy $5/trade
+   days 2199 (with trades 1275) | daily Sharpe 0.63 ann | PSR(>0) 0.976 | DSR 0.976 (1 trials, benchmark SR 0.00) | MinTRL 1513 days
+   max drawdown -$3,352 | best day $1,269 | worst day -$585 | net / max-loss 6.19
+   strategy           trades   win%      PF    avg R         net
+   nb_mes                905  36.4%    1.19   +0.047      $5,421
+   nb_mnq               1741  35.8%    1.15   +0.044      $6,965
+   === IS_P1_r250.0_bps — rolling-start evaluations under topstep_50k ===
+   431 evaluations (one every 5 sessions) → 203 passed, 214 failed, 14 open
+   pass rate 49%  (95% CI 24–74% on ≈12 independent attempts — runs overlap)
+   sessions to pass: median 151 (IQR 96–268) | sessions to fail: median 165 (IQR 102–256)
+IS_P1_r250.0_contract
+   net $436 (gross $11,549, costs $11,114) | trades 2672 | win 32.0% | PF 1.01 | avg -0.008R | expectancy $0/trade
+   days 2199 (with trades 1283) | daily Sharpe 0.02 ann | PSR(>0) 0.525 | DSR 0.525 (1 trials, benchmark SR 0.00) | MinTRL 1495310 days
+   max drawdown -$7,205 | best day $1,829 | worst day -$596 | net / max-loss 0.22
+   strategy           trades   win%      PF    avg R         net
+   nb_mes                867  31.9%    1.06   -0.009      $1,898
+   nb_mnq               1805  32.0%    0.97   -0.008     -$1,463
+   === IS_P1_r250.0_contract — rolling-start evaluations under topstep_50k ===
+   431 evaluations (one every 5 sessions) → 78 passed, 341 failed, 12 open
+   pass rate 19%  (95% CI 6–43% on ≈16 independent attempts — runs overlap)
+   sessions to pass: median 145 (IQR 77–183) | sessions to fail: median 122 (IQR 86–166)
+IS_P2_r150.0_bps
+   net $34,727 (gross $44,188, costs $9,462) | trades 3078 | win 34.1% | PF 1.26 | avg +0.117R | expectancy $11/trade
+   days 2199 (with trades 1296) | daily Sharpe 1.14 ann | PSR(>0) 1.000 | DSR 1.000 (1 trials, benchmark SR 0.00) | MinTRL 424 days
+   max drawdown -$4,161 | best day $1,808 | worst day -$417 | net / max-loss 17.36
+   strategy           trades   win%      PF    avg R         net
+   nb_mes                796  37.1%    1.25   +0.050      $4,590
+   nb_mnq               2282  33.1%    1.26   +0.141     $30,137
+   === IS_P2_r150.0_bps — rolling-start evaluations under topstep_50k ===
+   431 evaluations (one every 5 sessions) → 190 passed, 232 failed, 9 open
+   pass rate 45%  (95% CI 28–63% on ≈28 independent attempts — runs overlap)
+   sessions to pass: median 74 (IQR 50–127) | sessions to fail: median 54 (IQR 38–90)
+IS_P2_r150.0_contract
+   net -$10,132 (gross $19,764, costs $29,896) | trades 3084 | win 28.5% | PF 0.93 | avg -0.055R | expectancy -$3/trade
+   days 2199 (with trades 1303) | daily Sharpe -0.35 ann | PSR(>0) 0.162 | DSR 0.162 (1 trials, benchmark SR 0.00) | MinTRL inf days
+   max drawdown -$20,109 | best day $1,552 | worst day -$472 | net / max-loss -5.07
+   strategy           trades   win%      PF    avg R         net
+   nb_mes                791  33.1%    1.04   +0.003        $770
+   nb_mnq               2293  26.9%    0.92   -0.075    -$10,902
+   === IS_P2_r150.0_contract — rolling-start evaluations under topstep_50k ===
+   431 evaluations (one every 5 sessions) → 46 passed, 376 failed, 9 open
+   pass rate 11%  (95% CI 4–25% on ≈38 independent attempts — runs overlap)
+   sessions to pass: median 57 (IQR 38–87) | sessions to fail: median 47 (IQR 31–69)
+IS_P2_r250.0_bps
+   net $47,174 (gross $60,210, costs $13,036) | trades 3079 | win 34.3% | PF 1.25 | avg +0.110R | expectancy $15/trade
+   days 2199 (with trades 1295) | daily Sharpe 1.12 ann | PSR(>0) 1.000 | DSR 1.000 (1 trials, benchmark SR 0.00) | MinTRL 445 days
+   max drawdown -$4,420 | best day $2,025 | worst day -$566 | net / max-loss 23.59
+   strategy           trades   win%      PF    avg R         net
+   nb_mes                812  37.2%    1.17   +0.053      $4,704
+   nb_mnq               2267  33.3%    1.27   +0.131     $42,469
+   === IS_P2_r250.0_bps — rolling-start evaluations under topstep_50k ===
+   431 evaluations (one every 5 sessions) → 164 passed, 263 failed, 4 open
+   pass rate 38%  (95% CI 26–53% on ≈46 independent attempts — runs overlap)
+   sessions to pass: median 42 (IQR 25–58) | sessions to fail: median 42 (IQR 28–64)
+IS_P2_r250.0_contract
+   net -$18,605 (gross $19,225, costs $37,830) | trades 3088 | win 28.5% | PF 0.91 | avg -0.061R | expectancy -$6/trade
+   days 2199 (with trades 1301) | daily Sharpe -0.50 ann | PSR(>0) 0.079 | DSR 0.079 (1 trials, benchmark SR 0.00) | MinTRL inf days
+   max drawdown -$28,872 | best day $1,848 | worst day -$622 | net / max-loss -9.30
+   strategy           trades   win%      PF    avg R         net
+   nb_mes                806  32.8%    0.98   +0.002       -$703
+   nb_mnq               2282  27.0%    0.89   -0.083    -$17,902
+   === IS_P2_r250.0_contract — rolling-start evaluations under topstep_50k ===
+   431 evaluations (one every 5 sessions) → 58 passed, 369 failed, 4 open
+   pass rate 14%  (95% CI 7–25% on ≈56 independent attempts — runs overlap)
+   sessions to pass: median 30 (IQR 19–39) | sessions to fail: median 33 (IQR 22–48)
+IS_P3_r150.0_bps
+   net $29,106 (gross $35,244, costs $6,137) | trades 2212 | win 35.5% | PF 1.31 | avg +0.132R | expectancy $13/trade
+   days 2199 (with trades 990) | daily Sharpe 1.13 ann | PSR(>0) 1.000 | DSR 1.000 (1 trials, benchmark SR 0.00) | MinTRL 424 days
+   max drawdown -$3,829 | best day $1,813 | worst day -$410 | net / max-loss 14.55
+   strategy           trades   win%      PF    avg R         net
+   nb_mes                696  37.8%    1.24   +0.062      $4,186
+   nb_mnq               1516  34.5%    1.32   +0.165     $24,920
+   === IS_P3_r150.0_bps — rolling-start evaluations under topstep_50k ===
+   431 evaluations (one every 5 sessions) → 229 passed, 191 failed, 11 open
+   pass rate 55%  (95% CI 35–73% on ≈23 independent attempts — runs overlap)
+   sessions to pass: median 97 (IQR 69–129) | sessions to fail: median 85 (IQR 56–117)
+IS_P3_r150.0_contract
+   net -$1,349 (gross $17,328, costs $18,676) | trades 2230 | win 31.2% | PF 0.99 | avg -0.009R | expectancy -$1/trade
+   days 2199 (with trades 993) | daily Sharpe -0.06 ann | PSR(>0) 0.436 | DSR 0.436 (1 trials, benchmark SR 0.00) | MinTRL inf days
+   max drawdown -$9,714 | best day $1,547 | worst day -$490 | net / max-loss -0.67
+   strategy           trades   win%      PF    avg R         net
+   nb_mes                702  35.3%    1.09   +0.012      $1,645
+   nb_mnq               1528  29.3%    0.97   -0.019     -$2,994
+   === IS_P3_r150.0_contract — rolling-start evaluations under topstep_50k ===
+   431 evaluations (one every 5 sessions) → 100 passed, 318 failed, 13 open
+   pass rate 24%  (95% CI 11–46% on ≈20 independent attempts — runs overlap)
+   sessions to pass: median 139 (IQR 100–185) | sessions to fail: median 73 (IQR 46–120)
+IS_P3_r250.0_bps
+   net $41,914 (gross $50,287, costs $8,373) | trades 2236 | win 35.8% | PF 1.32 | avg +0.136R | expectancy $19/trade
+   days 2199 (with trades 988) | daily Sharpe 1.16 ann | PSR(>0) 1.000 | DSR 1.000 (1 trials, benchmark SR 0.00) | MinTRL 404 days
+   max drawdown -$4,619 | best day $2,035 | worst day -$557 | net / max-loss 20.96
+   strategy           trades   win%      PF    avg R         net
+   nb_mes                719  38.8%    1.35   +0.074      $8,841
+   nb_mnq               1517  34.4%    1.32   +0.165     $33,073
+   === IS_P3_r250.0_bps — rolling-start evaluations under topstep_50k ===
+   431 evaluations (one every 5 sessions) → 223 passed, 203 failed, 5 open
+   pass rate 52%  (95% CI 36–68% on ≈35 independent attempts — runs overlap)
+   sessions to pass: median 54 (IQR 35–87) | sessions to fail: median 56 (IQR 39–78)
+IS_P3_r250.0_contract
+   net -$4,078 (gross $19,565, costs $23,643) | trades 2240 | win 31.4% | PF 0.97 | avg -0.007R | expectancy -$2/trade
+   days 2199 (with trades 996) | daily Sharpe -0.13 ann | PSR(>0) 0.355 | DSR 0.355 (1 trials, benchmark SR 0.00) | MinTRL inf days
+   max drawdown -$14,219 | best day $1,946 | worst day -$596 | net / max-loss -2.04
+   strategy           trades   win%      PF    avg R         net
+   nb_mes                718  35.9%    1.07   +0.018      $1,952
+   nb_mnq               1522  29.3%    0.95   -0.019     -$6,030
+   === IS_P3_r250.0_contract — rolling-start evaluations under topstep_50k ===
+   431 evaluations (one every 5 sessions) → 60 passed, 359 failed, 12 open
+   pass rate 14%  (95% CI 6–30% on ≈32 independent attempts — runs overlap)
+   sessions to pass: median 53 (IQR 35–82) | sessions to fail: median 54 (IQR 35–88)

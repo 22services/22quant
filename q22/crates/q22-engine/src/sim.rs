@@ -261,6 +261,21 @@ pub struct BacktestReport {
 }
 
 /// Run a backtest over one or more instruments. `data` keys must match configured symbols.
+/// One timestamp: resting/queued orders fill at each bar's open, every market ingests its bar,
+/// then each instrument decides — so cross-asset strategies see peers at the same timestamp.
+fn step_group(eng: &mut Engine, sim: &mut SimBroker, names: &[String], group: &[(DateTime<Utc>, usize, Bar)]) {
+    for (_, k, bar) in group {
+        sim.on_bar_open(eng, &names[*k], bar);
+    }
+    for (_, k, bar) in group {
+        eng.ingest(&names[*k], bar);
+    }
+    for (_, k, bar) in group {
+        let cmds = eng.decide(&names[*k], bar);
+        sim.on_commands(eng, bar, cmds);
+    }
+}
+
 pub fn run_backtest(cfg: EngineConfig, data: Vec<(String, Vec<Bar>)>, opts: BacktestOptions) -> anyhow::Result<BacktestReport> {
     let mut eng = Engine::new(cfg.clone(), false)?;
     let periods: f64 = if eng.is_crypto() { 365.0 } else { 252.0 };
@@ -283,8 +298,15 @@ pub fn run_backtest(cfg: EngineConfig, data: Vec<(String, Vec<Bar>)>, opts: Back
     let start_balance = eng.acct.start_balance;
     let kind0 = eng.instruments[0].spec.kind;
 
-    for (_, k, bar) in &stream {
-        let sym = &names[*k];
+    let mut j = 0;
+    while j < stream.len() {
+        let mut k_end = j + 1;
+        while k_end < stream.len() && stream[k_end].0 == stream[j].0 {
+            k_end += 1;
+        }
+        let group = &stream[j..k_end];
+        j = k_end;
+        let bar = &group[group.len() - 1].2;
         let day = trading_day(kind0, bar.ts);
         if let Some(d) = wait_for_day {
             if day != d {
@@ -295,9 +317,7 @@ pub fn run_backtest(cfg: EngineConfig, data: Vec<(String, Vec<Bar>)>, opts: Back
         if attempt_start.is_none() {
             attempt_start = Some(day);
         }
-        sim.on_bar_open(&mut eng, sym, bar);
-        let cmds = eng.on_bar(sym, bar);
-        sim.on_commands(&mut eng, bar, cmds);
+        step_group(&mut eng, &mut sim, &names, group);
 
         // In replay, an account the guard has stopped trading (buffer to the threshold below its
         // minimum) is a dead evaluation: book it as failed and start a fresh one.
@@ -573,7 +593,15 @@ pub fn run_pass_rate(cfg: EngineConfig, data: Vec<(String, Vec<Bar>)>, opts: Pas
         let mut end = start_day;
         let mut result: Option<(String, String)> = None;
         let mut last_bar: Option<Bar> = None;
-        for (_, k, bar) in &stream[i0..] {
+        let mut j = i0;
+        while j < stream.len() {
+            let mut k_end = j + 1;
+            while k_end < stream.len() && stream[k_end].0 == stream[j].0 {
+                k_end += 1;
+            }
+            let group = &stream[j..k_end];
+            j = k_end;
+            let bar = &group[group.len() - 1].2;
             let day = trading_day(kind0, bar.ts);
             if !started && day >= start_day {
                 eng.reset_account();
@@ -587,9 +615,7 @@ pub fn run_pass_rate(cfg: EngineConfig, data: Vec<(String, Vec<Bar>)>, opts: Pas
                 sessions += 1;
                 last_day = Some(day);
             }
-            sim.on_bar_open(&mut eng, &names[*k], bar);
-            let cmds = eng.on_bar(&names[*k], bar);
-            sim.on_commands(&mut eng, bar, cmds);
+            step_group(&mut eng, &mut sim, &names, group);
             last_bar = Some(*bar);
             end = day;
             if !started {

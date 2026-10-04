@@ -154,4 +154,91 @@ the portfolio would be built from what does survive. If nothing survives, nothin
 
 ## 7. Deviation log
 
-*(empty at registration)*
+**D-1 (2026-10-04, after the IS study run): result of the registered families A–E.**
+All 15 harness hypotheses fail in IS:
+
+| Family | Net R per trade | Gross R per trade | Placebo t | Yearly profile |
+|---|---|---|---|---|
+| A (SMT) | −0.33 to −0.52 | −0.07 to −0.02 | −0.1 to +1.4 | 0% of IS years positive |
+| B | about −0.12 | | | |
+| C1 | −0.34 | | | |
+| D2 | −0.08 | | | |
+| E1 | n = 21 | | | |
+
+The forward-drift diagnostic shows no SMT information at +30, +60 or +120 minutes (|drift| < 0.01
+daily ATR). Logged as **NOT PROVEN / rejected**. File: `results/study_is.txt`.
+
+**D-2: F1 reference fails in IS with the registered cost model.**
+
+| Contract | Net | Gross | Costs | PF |
+|---|---|---|---|---|
+| MNQ | −$16.4k | +$19.6k | $36.0k | 0.91 |
+| MES | −$73.4k | −$38.6k | | |
+
+The per-contract cost ($0.75 plus 1 tick per side) on 2010-18 prices was 3–10× today's cost
+relative to price:
+* NQ traded at 1,800–7,000 then, against about 25,000 in 2026;
+* micro contracts did not exist before May 2019.
+
+**D-3: additional cost model (reported next to the registered one, never instead of it).**
+* Ratio back-adjusted data (`q22 databento --adjust ratio`), so percentage moves are exact.
+* Costs expressed in basis points of notional, calibrated to 2026 prices:
+  * MNQ: $1.25 per side at NQ 25,000 = **0.25 bp per side**;
+  * MES: $2.00 per side at ES 6,500 = **0.615 bp per side**.
+* The question this answers is *"would the rule be profitable at today's costs, in the market
+  conditions of the time?"* Both cost models are always shown.
+
+**D-4: new trials added after seeing D-1/D-2.** They count toward the Deflated-Sharpe trial
+count: **18 registered + 4 new = 22**.
+
+| Trial | Rule | Count |
+|---|---|---|
+| F2 | `noise_breakout` with the paper's own exit (`exit_mode = "checks"`): exit only when a 30-minute check closes back inside max(band, VWAP); protective stop 0.5 daily ATR, which also sizes the trade. MNQ and MES. This is the published rule, not a fitted one. | 2 |
+| D1 | `peer_filter` confirm / diverge, evaluated on F2 as well as on F1. | +1 (D1 itself was registered) |
+| A1n | "confirmed failed sweep" (both indices sweep the previous-session high/low, then MSS) traded as a reversal. Suggested by the null diagnostic of A1 (+0.06 ATR at +30 min, t = 3.3, n = 198). Data-snooped, so it must also pass OOS to be used. | 1 |
+
+**D-5 (2026-10-04): in-sample engine results and the frozen portfolio.**
+Files: `results/is_engine_matrix.txt`, `results/is_portfolios.txt`. IS, today-calibrated
+basis-point costs; the registered per-contract costs are shown next to them in those files.
+
+*Single bots:*
+
+| Bot | Sharpe | Max DD |
+|---|---|---|
+| MNQ `noise_breakout`, resting | 1.23 | −$4.7k |
+| MNQ `noise_breakout`, checks | 1.00 | −$2.3k |
+| MES `noise_breakout`, checks + confirm | 0.68 | −$2.0k |
+| MES `noise_breakout`, resting | 0.13 | |
+
+*D1 (registered): a breakout confirmed by the other index beats a divergent one in all 4
+comparisons.*
+
+| Variant | Confirm | Diverge |
+|---|---|---|
+| MNQ resting | 1.17 | 0.51 |
+| MNQ checks | 0.91 | 0.03 |
+| MES resting | 0.51 | −0.32 |
+| MES checks | 0.68 | −0.17 |
+
+**VALIDATED in IS as a filter. Rejected as a reversal signal** (D2, A-family).
+
+*Portfolios* (6 trials: P1/P2/P3 × risk $150/$250):
+
+| Portfolio | Risk | Sharpe | Max DD | Pass rate | Median sessions to pass |
+|---|---|---|---|---|---|
+| P3 = MNQ resting+confirm and MES checks+confirm | $250 | **1.16** | −$4.6k (worst day −$557) | 52% (CI 36–68%) | 54 |
+| P3 | $150 | 1.13 | | 55% | 97 |
+| P2 | $250 | 1.12 | | 38% | |
+| P1 | $250 | 0.63 | | | |
+
+ORB was tried as a third bot (2 trials): MNQ Sharpe 0.44, MES −0.67. Rejected.
+
+**Trial count: 30.**
+
+**FROZEN:** P3 at $250 risk per trade (`config/research/frozen_P3_{contract,bps}.toml`).
+* It meets the §5 sizing rule: the worst IS day of −$557 is below the guard's daily stop
+  ($600).
+* It does **not** meet the §5 drawdown criterion at this size: the 8.5-year max DD of $4.6k
+  is above $1k. The OOS report will state this plainly, together with the risk per trade
+  that would meet it.
+* The next and only OOS run is 2019-01-02 → 2026-07-09 with both frozen configs.

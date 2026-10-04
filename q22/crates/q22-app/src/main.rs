@@ -117,6 +117,28 @@ enum Cmd {
         #[arg(short, long)]
         config: PathBuf,
     },
+    /// Pre-registered NQ/ES event studies (research/PREREGISTRATION.md). In-sample only unless forced.
+    Study {
+        #[arg(long, default_value = "data/databento/NQ_c1_1m.csv")]
+        nq: PathBuf,
+        #[arg(long, default_value = "data/databento/ES_c1_1m.csv")]
+        es: PathBuf,
+        #[arg(long, default_value = "2010-06-07")]
+        from: NaiveDate,
+        #[arg(long, default_value = "2018-12-31")]
+        to: NaiveDate,
+        /// Allow dates after 2018-12-31 (the out-of-sample period). Log the run in the deviation log.
+        #[arg(long)]
+        force_oos: bool,
+        /// Comma-separated study ids to run (default: all registered).
+        #[arg(long)]
+        only: Option<String>,
+        /// Cost model: `contract` (registered: per-micro commission + 1 tick) or `bps` (today-calibrated, on ratio data).
+        #[arg(long, default_value = "contract")]
+        cost: String,
+        #[arg(long, default_value = "results/study_is.json")]
+        out: PathBuf,
+    },
     /// Convert a Databento all-contract OHLCV-1m CSV into a continuous, back-adjusted front-month series.
     Databento {
         /// Databento CSV (GLBX.MDP3 ohlcv-1m, symbols like ESM0 and spreads like ESM0-ESU0).
@@ -128,6 +150,9 @@ enum Cmd {
         /// Output CSV (unix_timestamp,open,high,low,close,volume,contract).
         #[arg(long)]
         out: PathBuf,
+        /// Roll stitching: `panama` (exact point P&L) or `ratio` (exact percentages; pair with costs in bps).
+        #[arg(long, default_value = "panama")]
+        adjust: String,
     },
     /// Download the free research datasets (index CFD 5-min 2020-23, BTC hourly) into a folder.
     FetchData {
@@ -163,8 +188,83 @@ async fn fetch_data(out: &std::path::Path) -> Result<()> {
     Ok(())
 }
 
-fn databento(input: &std::path::Path, root: &str, out: &std::path::Path) -> Result<()> {
-    use q22_core::databento::{build_continuous, read_contracts, write_continuous};
+#[allow(clippy::too_many_arguments)]
+fn study(nq: &std::path::Path, es: &std::path::Path, from: NaiveDate, to: NaiveDate, force_oos: bool, only: Option<String>, cost: &str, out: &std::path::Path) -> Result<()> {
+    use q22_research::studies::{self as s, BVariant, Leg};
+    let is_end = NaiveDate::from_ymd_opt(2018, 12, 31).unwrap();
+    if to > is_end && !force_oos {
+        anyhow::bail!("{to} is in the out-of-sample period (after {is_end}). The OOS data is reserved for the frozen portfolio; pass --force-oos and log the run in research/PREREGISTRATION.md §7 if you really mean it.");
+    }
+    let t0 = std::time::Instant::now();
+    let ratio = |x: &std::path::Path| -> PathBuf {
+        // `--cost bps` on the default Panama files → use the ratio-adjusted siblings
+        let s = x.to_string_lossy();
+        if s.ends_with("_c1_1m.csv") { PathBuf::from(s.replace("_c1_1m.csv", "_c1_1m_ratio.csv")) } else { x.to_path_buf() }
+    };
+    let mut p = match cost {
+        "contract" => q22_research::pair::Pair::load(nq, es)?,
+        "bps" => {
+            let mut p = q22_research::pair::Pair::load(&ratio(nq), &ratio(es))?;
+            p.cost = q22_research::sim::CostModel::Bps(q22_research::sim::BPS_TODAY);
+            p
+        }
+        x => anyhow::bail!("--cost must be contract or bps, got {x}"),
+    };
+    let _ = &mut p;
+    let days = p.usable_days(from, to);
+    println!("aligned {} minutes, {} sessions; {} usable in {from} → {to} ({:.1}s)", p.ts.len(), p.days.len(), days.len(), t0.elapsed().as_secs_f64());
+    println!("{}", if cost == "bps" { "costs: today-calibrated basis points per side (MNQ 0.25 bp, MES 0.615 bp), ratio-adjusted prices".to_string() } else { s::cost_note() });
+    type Build<'a> = Box<dyn Fn() -> s::StudyTrades + 'a>;
+    let reg: Vec<(&str, Build)> = vec![
+        ("A1-X", Box::new(|| s::a1_prev_session(&p, &days, Leg::X))),
+        ("A1-Y", Box::new(|| s::a1_prev_session(&p, &days, Leg::Y))),
+        ("A1n", Box::new(|| s::a1n_confirmed_failure(&p, &days))),
+        ("A2-X", Box::new(|| s::a2_overnight(&p, &days, Leg::X))),
+        ("A2-Y", Box::new(|| s::a2_overnight(&p, &days, Leg::Y))),
+        ("A3-X", Box::new(|| s::a3_opening_range(&p, &days, Leg::X))),
+        ("A3-Y", Box::new(|| s::a3_opening_range(&p, &days, Leg::Y))),
+        ("A4-X", Box::new(|| s::a4_micro(&p, &days, Leg::X))),
+        ("A4-Y", Box::new(|| s::a4_micro(&p, &days, Leg::Y))),
+        ("B1-short-leader", Box::new(|| s::b_spread(&p, &days, BVariant::ReversionShortLeader))),
+        ("B1-long-laggard", Box::new(|| s::b_spread(&p, &days, BVariant::ReversionLongLaggard))),
+        ("B2-long-leader", Box::new(|| s::b_spread(&p, &days, BVariant::MomentumLongLeader))),
+        ("B2-short-laggard", Box::new(|| s::b_spread(&p, &days, BVariant::MomentumShortLaggard))),
+        ("C1", Box::new(|| s::c1_lead_lag(&p, &days))),
+        ("D2", Box::new(|| s::d2_fade_divergent(&p, &days))),
+        ("E1", Box::new(|| s::e1_gap_divergence(&p, &days))),
+    ];
+    let wanted: Option<Vec<String>> = only.map(|o| o.split(',').map(|x| x.trim().to_string()).collect());
+    let mut results = vec![];
+    let mut drift = vec![];
+    for (id, build) in &reg {
+        if wanted.as_ref().is_some_and(|w| !w.iter().any(|x| x == id)) {
+            continue;
+        }
+        let st = build();
+        drift.push((id.to_string(), q22_research::forward_drift(&p, &st.trades), (!st.null_trades.is_empty()).then(|| q22_research::forward_drift(&p, &st.null_trades))));
+        results.push(q22_research::evaluate(&p, &st, &days));
+    }
+    q22_research::print_table(&results);
+    println!("\nforward drift in the trade direction, daily-ATR units (t-stat) — +30m / +60m / +120m / 15:55 — events vs null");
+    for (id, (n, m, t), null) in &drift {
+        let f = |m: &[f64; 4], t: &[f64; 4]| (0..4).map(|k| format!("{:+.3}({:+.1})", m[k], t[k])).collect::<Vec<_>>().join(" ");
+        println!("{id:<18} n={n:<5} {}{}", f(m, t), null.as_ref().map(|(nn, nm, nt)| format!("   | null n={nn:<5} {}", f(nm, nt))).unwrap_or_default());
+    }
+    if let Some(dir) = out.parent() {
+        std::fs::create_dir_all(dir)?;
+    }
+    std::fs::write(out, serde_json::to_vec_pretty(&json!({"from": from, "to": to, "sessions": days.len(), "results": results}))?)?;
+    println!("written {} ({:.1}s)", out.display(), t0.elapsed().as_secs_f64());
+    Ok(())
+}
+
+fn databento(input: &std::path::Path, root: &str, out: &std::path::Path, adjust: &str) -> Result<()> {
+    use q22_core::databento::{build_continuous, read_contracts, write_continuous, Adjust};
+    let mode = match adjust {
+        "panama" => Adjust::Panama,
+        "ratio" => Adjust::Ratio,
+        x => anyhow::bail!("--adjust must be panama or ratio, got {x}"),
+    };
     use std::io::Write;
     let t0 = std::time::Instant::now();
     let f = std::fs::File::open(input).map_err(|e| anyhow::anyhow!("opening {}: {e}", input.display()))?;
@@ -173,12 +273,12 @@ fn databento(input: &std::path::Path, root: &str, out: &std::path::Path) -> Resu
         "{}: {} rows, {} spread rows dropped, {} other-root rows, {} {root} contracts ({:.1}s)",
         input.display(), st.rows, st.spread_rows, st.other_root_rows, st.contracts, t0.elapsed().as_secs_f64()
     );
-    let (bars, rolls, sessions) = build_continuous(&contracts)?;
+    let (bars, rolls, sessions) = build_continuous(&contracts, mode)?;
     if let Some(p) = out.parent() {
         std::fs::create_dir_all(p)?;
     }
     let mut w = std::io::BufWriter::new(std::fs::File::create(out)?);
-    write_continuous(&mut w, &bars)?;
+    write_continuous(&mut w, &bars, mode)?;
     let log = out.with_extension("rolls.csv");
     let mut lw = std::io::BufWriter::new(std::fs::File::create(&log)?);
     writeln!(lw, "first_session,from,to,gap_points,measured_at_utc")?;
@@ -275,7 +375,8 @@ async fn main() -> Result<()> {
             backtest::save_json(&rep, &out.unwrap_or_else(|| backtest::default_report_path("reports", &label)))?;
         }
         Cmd::FetchData { out } => fetch_data(&out).await?,
-        Cmd::Databento { input, root, out } => tokio::task::spawn_blocking(move || databento(&input, &root, &out)).await??,
+        Cmd::Databento { input, root, out, adjust } => tokio::task::spawn_blocking(move || databento(&input, &root, &out, &adjust)).await??,
+        Cmd::Study { nq, es, from, to, force_oos, only, cost, out } => tokio::task::spawn_blocking(move || study(&nq, &es, from, to, force_oos, only, &cost, &out)).await??,
         Cmd::Check { config } => {
             let cfg = appcfg::AppConfig::load(&config)?;
             checklist(&cfg)?;
